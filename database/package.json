@@ -1,0 +1,31 @@
+{
+  "name": "@lifesolver/database",
+  "version": "3.2.0",
+  "private": true,
+  "type": "module",
+  "main": "./schema/index.ts",
+  "types": "./schema/index.ts",
+  "exports": {
+    ".": {
+      "types": "./schema/index.ts",
+      "import": "./schema/index.ts",
+      "default": "./schema/index.ts"
+    }
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "push": "drizzle-kit push",
+    "seed": "tsx seeds/seed.ts",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.39.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

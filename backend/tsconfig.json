@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@lifesolver/database": ["../database/schema/index.ts"]
+    },
+    "types": ["@cloudflare/workers-types"]
+  },
+  "include": ["src/**/*"]
+}

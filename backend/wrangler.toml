@@ -1,0 +1,51 @@
+name = "lifesolver-backend"
+main = "src/index.ts"
+compatibility_date = "2025-02-14"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "development"
+DB_PRIMARY = "d1"
+DB_REPLICA = "none"
+AI_PROVIDER = "groq"
+AI_FALLBACK = "workers-ai"
+IMAGE_PROVIDER = "r2"
+EMAIL_PROVIDER = "resend"
+VECTOR_PROVIDER = "vectorize"
+PAYMENT_PROVIDER = "stripe"
+JWT_SECRET = "dev_secret_change_in_production_lifesolver_jwt"
+ADMIN_SESSION_SECRET = "dev_admin_cookie_secret_change_in_prod"
+
+# Cloudflare D1 Relational SQLite Database
+[[d1_databases]]
+binding = "DB"
+database_name = "lifesolver-d1"
+database_id = "local-d1-binding"
+
+# Cloudflare Workers KV Cache
+[[kv_namespaces]]
+binding = "KV"
+id = "local-kv-binding"
+
+# Cloudflare R2 Object Storage
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "lifesolver-r2"
+
+# Cloudflare Workers AI
+[ai]
+binding = "AI"
+
+# Cloudflare Vectorize Semantic Search Index
+[[vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "lifesolver-notes"
+
+# Cloudflare Queues for Async Tasks & Background Sync
+[[queues.producers]]
+binding = "NOTIFICATION_QUEUE"
+queue = "lifesolver-notifications"
+
+# Cloudflare Scheduled Cron Triggers
+[triggers]
+crons = ["0 2 * * 0", "0 1 * * *"]

@@ -1,0 +1,35 @@
+# LifeSolver Worker Secrets & Environment Variables (.dev.vars)
+
+# Secrets
+JWT_SECRET=dev_super_secret_jwt_key_lifesolver_recreation_2026
+ADMIN_SESSION_SECRET=dev_admin_cookie_session_secret_change_in_prod
+
+# Provider Selection
+DB_PRIMARY=d1
+DB_REPLICA=none
+AI_PROVIDER=groq
+AI_FALLBACK=workers-ai
+IMAGE_PROVIDER=r2
+EMAIL_PROVIDER=resend
+VECTOR_PROVIDER=vectorize
+PAYMENT_PROVIDER=stripe
+
+# AI Credentials
+GROQ_API_KEY=gsk_your_groq_api_key_here
+OPENAI_API_KEY=sk_your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+HUGGINGFACE_API_KEY=hf_your_huggingface_api_key_here
+
+# Storage & CDN
+R2_PUBLIC_URL=http://localhost:8788/cdn
+IMGBB_API_KEY=
+
+# Email Credentials
+RESEND_API_KEY=re_your_resend_api_key_here
+SENDPULSE_API_USER=
+SENDPULSE_API_KEY=
+
+# Billing Credentials
+STRIPE_SECRET_KEY=sk_test_your_stripe_key
+STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret
+FRONTEND_URL=http://localhost:5173

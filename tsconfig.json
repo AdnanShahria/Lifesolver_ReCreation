@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["frontend/src/*"],
+      "@lifesolver/database": ["database/schema/index.ts"]
+    }
+  },
+  "include": [
+    "frontend/src/**/*",
+    "backend/src/**/*",
+    "database/schema/**/*",
+    "extension/src/**/*",
+    "scripts/**/*"
+  ]
+}

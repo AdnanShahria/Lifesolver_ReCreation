@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "LifeSolver — Edge Distraction Shield & Focus Telemetry",
+  "version": "3.2.0",
+  "description": "Chrome MV3 Focus Gate, Feed Eradicator, Checkout Gate, and Screen Time edge sync for LifeSolver OS.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "dist/background/ServiceWorker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "LifeSolver Focus Gate"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["dist/content/content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
