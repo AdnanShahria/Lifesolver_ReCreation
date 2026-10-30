@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../_core/AuthContext';
+import { useTheme } from '../_core/ThemeContext';
 import { CosmicStarfield } from './components/CosmicStarfield';
 import { HeroWindow } from './components/HeroWindow';
 import { OrbitFeatureBanner } from './components/OrbitFeatureBanner';
@@ -10,6 +12,7 @@ import { WhyChooseLifeSolver } from './components/WhyChooseLifeSolver';
 import { TransformationTable } from './components/TransformationTable';
 import { SecurityArchitecture } from './components/SecurityArchitecture';
 import { AuthModal } from '../Auth/AuthModal';
+import logoImg from '../assets/logo-192.png';
 import { 
   ArrowRight, 
   Sparkles, 
@@ -33,30 +36,11 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) => {
-  const { user, isAuthenticated, logout, login } = useAuth();
+  const { user, isAuthenticated, logout, loginWithCredentials } = useAuth();
+  const navigate = useNavigate();
   
-  // Theme State: Apple Pro Dark (Default) / Apple Pro White
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('lifesolver_theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-    return 'dark';
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'light') {
-      root.classList.add('light');
-      root.classList.remove('dark');
-    } else {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    }
-    localStorage.setItem('lifesolver_theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
+  // Global Theme (White / Light mode by default)
+  const { theme, isDark, toggleTheme } = useTheme();
 
   // Scroll State & Scroll Progress Indicator
   const [isScrolled, setIsScrolled] = useState(false);
@@ -129,15 +113,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
     setIsAuthOpen(true);
   };
 
-  const handleInstantDemo = () => {
-    login('demo_bearer_jwt_token_ls_v32', {
-      id: 'usr_commander_01',
-      name: 'Executive Adnan',
-      email: 'adnan@orbitsaas.cloud',
-      avatarUrl: ''
-    });
-    if (onEnterDashboard) {
-      onEnterDashboard();
+  const handleDevQuickSignIn = async () => {
+    try {
+      await loginWithCredentials('adnan@orbit.dev', 'Password123!');
+      if (onEnterDashboard) {
+        onEnterDashboard();
+      } else {
+        navigate('/dashboard');
+      }
+    } catch {
+      openLogin();
     }
   };
 
@@ -177,14 +162,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
             isScrolled ? 'is-scrolled shadow-2xl' : ''
           }`}>
             
-            {/* LifeSolver Snowflake Logo */}
+            {/* LifeSolver Brand Logo */}
             <div 
               className="flex items-center space-x-2.5 cursor-pointer group shrink-0" 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0071e3] via-[#00c5ff] to-[#5e5ce6] flex items-center justify-center text-white font-bold text-xs shadow-md shadow-[#00c5ff]/25 group-hover:scale-105 transition-transform duration-300">
-                <span className="text-sm select-none">❄️</span>
-              </div>
+              <img
+                src={logoImg}
+                alt="LifeSolver Logo"
+                className="w-8 h-8 rounded-xl object-cover shadow-md shadow-[#00c5ff]/20 group-hover:scale-105 transition-transform duration-300 ring-1 ring-black/[0.08] dark:ring-white/[0.12]"
+              />
               <div className="flex items-baseline space-x-1.5">
                 <span className={`font-bold text-base tracking-tight font-apple-display transition-colors ${
                   theme === 'light' ? 'text-zinc-900' : 'text-white'
@@ -283,13 +270,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
                 )}
               </button>
 
+              {/* Sign In Link to /auth */}
+              <Link
+                to="/auth?mode=login"
+                className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                  theme === 'light'
+                    ? 'text-zinc-700 hover:text-zinc-950 hover:bg-black/[0.05]'
+                    : 'text-zinc-300 hover:text-white hover:bg-white/[0.08]'
+                }`}
+              >
+                Sign In
+              </Link>
+
               {/* Single Crisp Premium Get Started Action Button */}
-              <button
-                onClick={handleGetStarted}
+              <Link
+                to="/auth?mode=register"
                 className="lifesolver-nav-cta px-5 py-2 text-xs font-semibold flex items-center justify-center tracking-tight shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <span>Get Started</span>
-              </button>
+              </Link>
             </div>
 
             {/* Mobile Actions Group */}
@@ -385,29 +384,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
                 Why
               </button>
               <div className="pt-3 border-t border-white/10 space-y-2">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleGetStarted();
-                  }}
-                  className="w-full py-2.5 rounded-full lifesolver-nav-cta text-xs font-semibold text-center"
+                <Link
+                  to="/auth?mode=register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full block py-2.5 rounded-full lifesolver-nav-cta text-xs font-semibold text-center"
                 >
                   Get Started
-                </button>
+                </Link>
                 {!isAuthenticated && (
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      openLogin();
-                    }}
-                    className={`w-full py-2 rounded-full text-xs font-medium text-center ${
+                  <Link
+                    to="/auth?mode=login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`w-full block py-2 rounded-full text-xs font-medium text-center ${
                       theme === 'light'
                         ? 'bg-black/[0.05] hover:bg-black/[0.1] text-zinc-700'
                         : 'bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300'
                     }`}
                   >
                     Sign In
-                  </button>
+                  </Link>
                 )}
               </div>
             </div>
@@ -453,10 +448,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
                 </button>
 
                 <button
-                  onClick={handleInstantDemo}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-full apple-btn-secondary text-sm sm:text-base font-medium text-zinc-200 hover:text-white min-h-[48px] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  onClick={handleDevQuickSignIn}
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-full apple-btn-secondary text-sm sm:text-base font-medium text-zinc-200 hover:text-white min-h-[48px] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                 >
-                  Explore Cockpit Demo
+                  Quick Sign In (Master User)
                 </button>
               </div>
 
@@ -611,10 +606,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
                 </button>
 
                 <button
-                  onClick={handleInstantDemo}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-full apple-btn-secondary text-zinc-200 hover:text-white font-medium text-sm sm:text-base min-h-[48px]"
+                  onClick={handleDevQuickSignIn}
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-full apple-btn-secondary text-zinc-200 hover:text-white font-medium text-sm sm:text-base min-h-[48px] cursor-pointer"
                 >
-                  Instant 1-Click Demo
+                  Quick Sign In (Master User)
                 </button>
               </div>
 
@@ -634,16 +629,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
             {/* Col 1: Identity */}
             <div className="space-y-3 md:col-span-1">
               <div className="flex items-center space-x-2.5">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#0071e3] to-[#64d2ff] flex items-center justify-center text-white font-bold text-xs">
-                  ❄️
-                </div>
+                <img
+                  src={logoImg}
+                  alt="LifeSolver"
+                  className="w-8 h-8 rounded-xl object-cover shadow-sm ring-1 ring-white/10"
+                />
                 <span className="font-bold text-white text-sm font-apple-display">LifeSolver</span>
               </div>
               <p className="text-zinc-400 leading-relaxed font-apple-text">
                 The interconnected life operating system and second brain command center.
               </p>
               <div className="font-mono text-[11px] text-zinc-500">
-                Crafted with ❄️ and AI.
+                Crafted with Neon Precision and AI.
               </div>
             </div>
 
@@ -670,7 +667,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
                 <li><button onClick={() => scrollTo('orbit-ai')} className="hover:text-white transition-colors">Orbit AI Engine</button></li>
                 <li><button onClick={() => scrollTo('why')} className="hover:text-white transition-colors">Zero-Knowledge Vault</button></li>
                 <li><button onClick={() => scrollTo('why')} className="hover:text-white transition-colors">Offline-First SQLite</button></li>
-                <li><button onClick={() => scrollTo('why')} className="hover:text-white transition-colors">Data Export Freedom</button></li>
+                <li><Link to="/auth" className="hover:text-violet-300 text-violet-400 transition-colors flex items-center space-x-1"><span>Auth Portal & Sign In</span> &rarr;</Link></li>
               </ul>
             </div>
 

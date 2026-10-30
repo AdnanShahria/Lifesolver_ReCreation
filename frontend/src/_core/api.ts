@@ -31,9 +31,12 @@ export const api = {
       throw new UpgradeRequiredError(errorData);
     }
 
-    if (response.status === 401) {
-      localStorage.removeItem('ls_token');
-      window.dispatchEvent(new CustomEvent('lifesolver:unauthorized'));
+    if (response.status === 401 && !endpoint.includes('/api/auth/login')) {
+      // Only trigger session termination if an existing token was rejected
+      if (token) {
+        localStorage.removeItem('ls_token');
+        window.dispatchEvent(new CustomEvent('lifesolver:unauthorized'));
+      }
     }
 
     const data = await response.json();

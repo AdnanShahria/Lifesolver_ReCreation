@@ -6,10 +6,21 @@ import { authMiddleware } from './_core/auth.middleware';
 import { adminMiddleware } from './_core/admin.middleware';
 import { subscriptionMiddleware } from './_core/subscription.middleware';
 import { jsonOk } from './_core/response';
+import { authRouter } from './Auth';
+import { plannerRouter } from './Planner';
+import { financeRouter } from './Finance';
+import { adminRouter } from './Admin/AdminRouter';
 
 const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
-app.use('*', logger());
+const honoLogger = logger();
+app.use('*', async (c, next) => {
+  // Silence noisy telemetry and health probes from console logs
+  if (c.req.path === '/api/system/probe') {
+    return next();
+  }
+  return honoLogger(c, next);
+});
 app.use('*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -36,38 +47,20 @@ app.get('/api/system/probe', (c) => {
 });
 
 // ── Auth Module ───────────────────────────────────
-app.post('/api/auth/register', async (c) => {
-  return jsonOk(c, { message: 'Register endpoint ready' });
-});
-
-app.post('/api/auth/login', async (c) => {
-  return jsonOk(c, { token: 'mock_jwt_token', user: { id: 'usr_01', email: 'user@lifesolver.app' } });
-});
-
-app.post('/api/auth/verify-otp', async (c) => {
-  return jsonOk(c, { verified: true });
-});
+app.route('/api/auth', authRouter);
 
 // ── 8 Core Verticals (Protected) ─────────────────
 
-// 1. Planner (Tasks, Goals, Calendar)
-app.get('/api/planner/tasks', authMiddleware, subscriptionMiddleware, async (c) => {
-  return jsonOk(c, { tasks: [] });
-});
-
-app.post('/api/planner/tasks', authMiddleware, subscriptionMiddleware, async (c) => {
-  return jsonOk(c, { created: true }, 201);
-});
+// 1. Planner (Tasks, Lists, Subtasks, Columns, Folders)
+app.route('/api/planner', plannerRouter);
 
 // 2. Mind (Notes, Flashcards, Journal)
 app.get('/api/mind/notes', authMiddleware, subscriptionMiddleware, async (c) => {
   return jsonOk(c, { notes: [] });
 });
 
-// 3. Finance (Ledger, Budgets, Loans)
-app.get('/api/finance/ledger', authMiddleware, subscriptionMiddleware, async (c) => {
-  return jsonOk(c, { transactions: [], summary: { balance: 0, income: 0, expenses: 0 } });
-});
+// 3. Finance (Ledger, Budgets, Savings, Bills, Loans, Analytics)
+app.route('/api/finance', financeRouter);
 
 // 4. Health (Habits, Gym, Vitals)
 app.get('/api/health/habits', authMiddleware, subscriptionMiddleware, async (c) => {
@@ -105,9 +98,9 @@ app.get('/api/billing/plans', async (c) => {
   });
 });
 
-// ── Admin Matrix ──────────────────────────────────
-app.get('/adm/api/dashboard', adminMiddleware, async (c) => {
-  return jsonOk(c, { activeUsers: 1, mrr: 0, edgeHealthy: true });
-});
+// ── SysAdmin Monitoring & Governance Matrix ──────
+app.route('/api/admin', adminRouter);
+app.route('/adm/api', adminRouter);
 
+export { app };
 export default app;

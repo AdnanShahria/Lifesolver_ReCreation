@@ -7,6 +7,8 @@ ADMIN_SESSION_SECRET=dev_admin_cookie_session_secret_change_in_prod
 # Provider Selection
 DB_PRIMARY=d1
 DB_REPLICA=none
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_D1_DATABASE_ID=
 AI_PROVIDER=groq
 AI_FALLBACK=workers-ai
 IMAGE_PROVIDER=r2

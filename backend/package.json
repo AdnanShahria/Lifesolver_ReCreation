@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev src/index.ts --port 8788",
+    "build": "tsc --noEmit",
     "deploy": "wrangler deploy src/index.ts",
     "check": "tsc --noEmit",
     "typecheck": "tsc --noEmit"

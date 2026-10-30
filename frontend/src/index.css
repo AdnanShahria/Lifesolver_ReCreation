@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     /* Apple Human Interface System Palette (Dark Default) */
@@ -402,6 +404,7 @@ html.light .apple-nav-glass.is-scrolled {
     0 2px 8px 0 rgba(0, 0, 0, 0.04);
 }
 
+html.light .apple-glass,
 html.light .apple-card,
 html.light .apple-glass-card,
 html.light .frost-card {

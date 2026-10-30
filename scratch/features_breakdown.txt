@@ -1,0 +1,278 @@
+=== NAV ===
+  nav_details: Records
+  nav_chart: Charts
+  nav_bill: Reports
+  nav_garden: Garden
+
+=== ENTRY_AND_CALC ===
+  expenditure: Expenses
+  income: Income
+  the_income: Income
+  transfer: Transfer
+  amount: Amount
+  amount_of_change: Amount adjustment
+  category_budget: Category Budget
+  budget_category_sum_bigger_than_total_tip: The total budget cannot be less than the sum of category budgets
+  budget_total_auto_update_tip: The sum of category budgets has exceeded the total budget, and the total budget will be updated automatically!
+  category: Category
+  please_input_category_name: Please enter the category name
+  category_setting: Category settings
+  add_category: Add category
+  edit_category: Edit category
+  category_name_can_not_empty: Category name can not be empty！
+  category_shopping: Shopping
+  category_food: Food
+  category_mobile_phone: Phone
+  category_entertainment: Entertainment
+  category_education: Education
+  category_hairdressing: Beauty
+  category_sport: Sports
+  category_daily_necessities: Social
+  category_transportation: Transportation
+  category_clothing: Clothing
+  category_car: Car
+  category_alcohol: Alcohol
+  category_cigarette: Cigarettes
+  category_express_delivery: Electronics
+  category_travel: Travel
+  category_medical: Health
+  category_pet: Pets
+  category_tool: Repairs
+  category_furnish: Housing
+  category_furniture: Home
+  category_gift: Gifts
+  category_donation: Donations
+  category_lottery: Lottery
+  category_snack: Snacks
+  category_cereals: Kids
+  category_vegetable: Vegetables
+  category_fruit: Fruits
+  category_salary: Salary
+  category_financial_management: Investments
+  category_part_time_job: Part-Time
+  category_gift_money: Bonus
+  category_other: Others
+  category_personal: Personal
+  category_festival: Festival
+  category_office: Office
+  category_life: Life
+  category_finance: Finance
+  remark: Note
+  please_input_remark: Enter a note
+  reminder_default_remark: Don't forget to add your spending for today!
+  category_can_not_empty: Please select a category！
+  bookkeeping_amount_can_not_empty: Please enter the amount !
+  calendar_daily_income_expense_amount_switch: Amount of daily income and expenditure
+  calendar_daily_income_expense_amount_switch_tip: After enabling, the daily income and expenditure amount will be displayed
+  homepage_hide_total_amount: Hide total amount on homepage
+  standard_cashbook_remark: Standard configuration
+  team_cashbook_remark: Share with multiple people
+  business_cashbook_remark: Suitable for business use
+  sort_by_amount: Sort by amount
+  ai_income_expenditure_add_record_error_tip: AI input parsing failed, please try again!
+  builtin_calculator: Calculator
+  sub_category: Subcategory
+  sub_category_settings: Subcategory Settings
+  sub_category_tip: Subcategories allow for more detailed statistics and can be turned on or off at any time.
+  initial_amount: Initial amount
+
+=== ACCOUNT_WALLET ===
+  transfer: Transfer
+  balance: Balance
+  monthly_balance: Monthly balance
+  total_balance: Total balance
+  balance_display_mode: Balance display mode
+  log_out: Delete account
+  do_you_want_to_log_out: Are you sure to delete this account?
+  This_pro_subscription_is_tied_to_another_account: This account's subscription service has been bound to another account!
+  account: Accounts
+  account_name: Account name
+  please_input_account_name: Enter account name
+  account_name_can_not_empty: Please enter account name
+  account_currency_can_not_empty: Please select currency
+  debt: Liabilities
+  asset: Assets
+  net_asset: Net Worth
+  account_type_cash: Cash
+  account_type_debit_card: Debit card
+  account_type_credit_card: Credit card
+  account_type_virtual_account: Virtual account
+  account_type_investment: Investment
+  account_type_owe_me: Owes me
+  account_type_receivables: Receivables
+  account_type_i_owe: I owe
+  account_type_payables: Payables
+  unselect_account: Not associated with any account
+  add_accounts: Add Account
+  manage_account: Manage Accounts
+  select_default_account_tip: * The pin icon represents &quot;selected by default&quot;, that is, every time a record is added, it will be selected by default. 
+  calendar: Calendar
+  calendar_entry: Calendar Entrance
+  calendar_setting: Calendar Settings
+  calendar_entry_tip: After enabling, the calendar entry will be displayed in the upper right corner of the home page
+  calendar_daily_income_expense_amount_switch: Amount of daily income and expenditure
+  calendar_daily_income_expense_amount_switch_tip: After enabling, the daily income and expenditure amount will be displayed
+  the_account: Account
+  not_include_in_total_balance: Do not include in total balance
+  please_select_the_account: Please select the account
+  from_account_and_to_account_can_not_be_the_same_tip: The sending account and the receiving account cannot be the same!
+
+=== BUDGET ===
+  budget: Budget
+  total_budget: Monthly Budget
+  category_budget: Category Budget
+  budget_setting: Budget Settings
+  average_daily_budget: Average daily budget
+  over_budget: Over budget
+  not_over_budget: Within budget
+  budget_category_sum_bigger_than_total_tip: The total budget cannot be less than the sum of category budgets
+  budget_total_auto_update_tip: The sum of category budgets has exceeded the total budget, and the total budget will be updated automatically!
+  management_permission_tip: Manage the basic information, members, categories and budget of this cashbook
+  total_budget_exceeded_tip: Your spending has exceeded your total budget!
+  budget_exceeded_tip: Your spending has exceeded your budget!
+
+=== CALENDAR_RECORD ===
+  nav_details: Records
+  nav_bill: Reports
+  total_budget: Monthly Budget
+  budget_total_auto_update_tip: The sum of category budgets has exceeded the total budget, and the total budget will be updated automatically!
+  monthly_balance: Monthly balance
+  consecutive_days_of_billing: Record days
+  total_days_of_billing: Registration days
+  total_number_of_bills: Records
+  no_records: No records
+  date: Date
+  monday: Monday
+  tuesday: Tuesday
+  wednesday: Wednesday
+  thursday: Thursday
+  friday: Friday
+  saturday: Saturday
+  sunday: Sunday
+  yesterday: Yesterday
+  today: Today
+  last_month: Last Month
+  this_month: This Month
+  next_month: Next Month
+  last_year: Last Year
+  this_year: This Year
+  next_year: Next Year
+  day: Day
+  month: Month
+  year: Year
+  monthly: Monthly
+  yearly: Yearly
+  premium_upgrade_tip_3: Custom start date
+  updated_at: Updated at
+  update_now: Update Now
+  export_data_time_tip: You can only export a maximum of one year's worth of data per operation！
+  lucky_garden_guide_1: We distribute a lucky seed to you by default. You can water the seed so that it germinates and grows. As the seed grows, it generates luck points. You can collect lucky points every day. It may bring you good luck and your life may get better day by day!
+  free_trial_days_month: Start FREE 3 days trial
+Then 98 per month.
+  free_trial_days_year: Start FREE 7 days trial
+Then 98 per year.
+  price_monthly: 98/Month
+  price_yearly: 98/Year
+  please_update_currency_exchange_rate_tip: Failed to load exchange rate data, please connect to the Internet and try again！
+  reminder_default_remark: Don't forget to add your spending for today!
+  start_date: Reminder start date
+  once_a_day: Daily
+  once_a_month: Monthly
+  once_two_month: Every two months
+  once_three_month: Every three months
+  once_four_month: Every four months
+  once_six_month: Every six months
+  once_a_year: Every year
+  select_default_account_tip: * The pin icon represents &quot;selected by default&quot;, that is, every time a record is added, it will be selected by default. 
+  bookkeeping_start_date: Payment start date
+  calendar: Calendar
+  calendar_entry: Calendar Entrance
+  calendar_setting: Calendar Settings
+  start_of_the_week: Start day of the week
+  calendar_entry_tip: After enabling, the calendar entry will be displayed in the upper right corner of the home page
+  calendar_daily_income_expense_amount_switch: Amount of daily income and expenditure
+  calendar_daily_income_expense_amount_switch_tip: After enabling, the daily income and expenditure amount will be displayed
+  monthly_cycle: Period
+  start_of_the_month: Monthly Start Date
+  beg_5_star_tip: Every day we do our best and work very hard on the app improvements！
+Please rate us five stars in Google Play!
+  beg_5_star_tip_ios: Every day we do our best and work very hard on the app improvements！
+Please rate us five stars in App Store!
+  reminder_tip: Remind me to record data every day!
+  monthly_statistics: Monthly Statistics
+  data_share_invitation_code_expire_date: Expiry Date
+  bookkeeping_start_date_tip: Regular payments will not be recorded in historical data, but will only be recorded starting from the day the next period arrives.
+  execute_date: Payment date
+  sort_by_date: Sort by date
+  today_first_add_action_tip: First record of the day!
+  add_action_records_streak_tip: Milestone: 10 Data Records
+  ai_tool_recording_tip: Recording
+  ai_tool_record_release_tip: Release to send
+  ai_tool_record_send_tip: Recorded, click to send
+  ai_income_expenditure_add_record_error_tip: AI input parsing failed, please try again!
+  add_record_page_icon_style: Add page icon styles
+  regular_payments_record_tip: Data is automatically recorded only on the payment date. If you have enabled reminder permissions, you will also be notified.
+  ai_audio_record_tip: What for and how much?
+
+=== CHARTS_REPORTS ===
+  nav_chart: Charts
+  nav_bill: Reports
+  leaderboard: Top lists
+  copied: Copied
+  monthly_statistics: Monthly Statistics
+  data_share_tip: Data sharing allows two users’ personal cash book data to be combined for joint report viewing, while their data remains independently managed. Either party can opt out of sharing at any time.
+  sub_category_tip: Subcategories allow for more detailed statistics and can be turned on or off at any time.
+
+=== SPLIT_AA ===
+  premium_center: Premium Member
+  premium_expired_tip: Tip: Your VIP membership has expired.
+  quited_data_share_invitation: Your family member has exited family data sharing！
+  invite_members: Invite members
+  members: Members
+  member: 
+  remove_the_member: Remove this member
+  management_permission_tip: Manage the basic information, members, categories and budget of this cashbook
+  the_member_quantity_limit_is_exceeded: The number of members exceeds the system limit
+
+=== AI_SMART ===
+  nav_details: Records
+  details: Details
+  average_daily_budget: Average daily budget
+  remaining: Remaining
+  category_entertainment: Entertainment
+  category_hairdressing: Beauty
+  category_daily_necessities: Social
+  category_tool: Repairs
+  please_confirm_again: Please confirm once again！
+  failed_to_save: Failed to save
+  photo_album: Album
+  camera: Camera
+  network_anomalies: Network error, Please try again later
+  network_closed: Network is not open, Please try again later
+  network_unavailable_tip: The network is unavailable, please check the network!
+  lucky_garden_guide_2: The generation of lucky points requires your daily efforts and time to cultivate. Just like our life, as long as we face it positively, work hard, and know how to cherish and wait, good luck will last forever. Good luck!
+  open_lucky_garden_index_collect_coin_tip: Lucky Garden entry is now available on the home screen.
+  discount_remaining_time: Time remaining
+  permission_photo_usage_des: You need to provide photo album access to upload profile image.
+  permission_camera_usage_des: You need to provide camera access to upload profile image.
+  microphone_usage_des: Microphone access is required to use voice input.
+  please_update_currency_exchange_rate_tip: Failed to load exchange rate data, please connect to the Internet and try again！
+  once_a_day: Daily
+  calendar_daily_income_expense_amount_switch: Amount of daily income and expenditure
+  calendar_daily_income_expense_amount_switch_tip: After enabling, the daily income and expenditure amount will be displayed
+  picture: Photos
+  data_share_tip: Data sharing allows two users’ personal cash book data to be combined for joint report viewing, while their data remains independently managed. Either party can opt out of sharing at any time.
+  regenerate_data_share_invitation_code: Generate Again
+  fail: Failed
+  ai_tool: AI Input Toolbar
+  ai_tool_parsing_tip: AI is processing, please wait!
+  are_you_sure_to_close_ai_tool: Are you sure to close AI Toolbar?
+  ai_tool_open_again_tip: You can reopen it in the settings page!
+  ai_tool_recording_tip: Recording
+  ai_tool_record_release_tip: Release to send
+  ai_tool_record_send_tip: Recorded, click to send
+  ai_income_expenditure_add_record_error_tip: AI input parsing failed, please try again!
+  ads_failed_to_load: Ad failed to load. Please try again later.
+  sub_category_tip: Subcategories allow for more detailed statistics and can be turned on or off at any time.
+  ai_audio_record_tip: What for and how much?
+

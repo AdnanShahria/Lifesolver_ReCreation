@@ -20,7 +20,7 @@ ADMIN_SESSION_SECRET = "dev_admin_cookie_secret_change_in_prod"
 [[d1_databases]]
 binding = "DB"
 database_name = "lifesolver-d1"
-database_id = "local-d1-binding"
+database_id = "e8e10bd0-7d62-4f4d-a775-5d488b21a0b8"
 
 # Cloudflare Workers KV Cache
 [[kv_namespaces]]
