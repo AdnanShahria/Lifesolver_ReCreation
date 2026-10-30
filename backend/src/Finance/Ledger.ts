@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq, and, desc, sql, lt } from 'drizzle-orm';
 import { getDb } from '../_core/db';
-import { financeTable, budgetsTable } from '@lifesolver/database';
+import { financeTable, budgetsTable, accountsTable } from '@lifesolver/database';
 import { jsonOk, jsonError } from '../_core/response';
 import { authMiddleware } from '../_core/auth.middleware';
 import { subscriptionMiddleware } from '../_core/subscription.middleware';
@@ -12,6 +12,7 @@ export const ledgerRoute = new Hono<{ Bindings: Env; Variables: AppVariables }>(
 
 ledgerRoute.use('*', authMiddleware, subscriptionMiddleware);
 
+// ── Validation Schemas ──────────────────────────────────────────────
 const createTransactionSchema = z.object({
   type: z.enum(['income', 'expense']),
   amount: z.number().positive('Amount must be greater than zero'),
@@ -19,7 +20,10 @@ const createTransactionSchema = z.object({
   description: z.string().trim().optional().default(''),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD').optional(),
   isSpecial: z.number().int().min(0).max(1).default(0),
-  budgetId: z.string().optional().nullable()
+  budgetId: z.string().optional().nullable(),
+  accountId: z.string().optional().nullable(),
+  payee: z.string().trim().optional().nullable(),
+  receiptUrl: z.string().trim().optional().nullable()
 });
 
 const updateTransactionSchema = createTransactionSchema.partial();
@@ -33,10 +37,16 @@ ledgerRoute.get('/ledger', async (c) => {
     const isSpecialParam = c.req.query('isSpecial');
     const typeParam = c.req.query('type');
     const categoryParam = c.req.query('category');
+    const accountIdParam = c.req.query('accountId');
     const limit = Math.min(parseInt(c.req.query('limit') || '50', 10), 100);
     const cursor = c.req.query('cursor');
 
     // 1. Compute dynamic balances server-side
+    const balanceFilters = [eq(financeTable.userId, userId)];
+    if (accountIdParam) {
+      balanceFilters.push(eq(financeTable.accountId, accountIdParam));
+    }
+
     const balanceRows = await db
       .select({
         type: financeTable.type,
@@ -44,7 +54,7 @@ ledgerRoute.get('/ledger', async (c) => {
         total: sql<number>`SUM(${financeTable.amount})`
       })
       .from(financeTable)
-      .where(eq(financeTable.userId, userId))
+      .where(and(...balanceFilters))
       .groupBy(financeTable.type, financeTable.isSpecial);
 
     let regularIncome = 0;
@@ -69,18 +79,21 @@ ledgerRoute.get('/ledger', async (c) => {
 
     // Current month metrics
     const currentMonthPrefix = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const currentMonthFilters = [
+      eq(financeTable.userId, userId),
+      sql`${financeTable.date} LIKE ${currentMonthPrefix + '%'}`
+    ];
+    if (accountIdParam) {
+      currentMonthFilters.push(eq(financeTable.accountId, accountIdParam));
+    }
+
     const currentMonthRows = await db
       .select({
         type: financeTable.type,
         total: sql<number>`SUM(${financeTable.amount})`
       })
       .from(financeTable)
-      .where(
-        and(
-          eq(financeTable.userId, userId),
-          sql`${financeTable.date} LIKE ${currentMonthPrefix + '%'}`
-        )
-      )
+      .where(and(...currentMonthFilters))
       .groupBy(financeTable.type);
 
     let monthlyIncome = 0;
@@ -90,7 +103,7 @@ ledgerRoute.get('/ledger', async (c) => {
       else monthlyExpense += Number(r.total || 0);
     }
 
-    // 2. Fetch paginated transactions
+    // 2. Fetch paginated transactions with account info
     const filters = [eq(financeTable.userId, userId)];
 
     if (isSpecialParam !== undefined && isSpecialParam !== 'all') {
@@ -102,13 +115,36 @@ ledgerRoute.get('/ledger', async (c) => {
     if (categoryParam) {
       filters.push(eq(financeTable.category, categoryParam));
     }
+    if (accountIdParam) {
+      filters.push(eq(financeTable.accountId, accountIdParam));
+    }
     if (cursor) {
       filters.push(lt(financeTable.createdAt, cursor));
     }
 
     const rows = await db
-      .select()
+      .select({
+        id: financeTable.id,
+        userId: financeTable.userId,
+        accountId: financeTable.accountId,
+        accountName: accountsTable.name,
+        accountColor: accountsTable.color,
+        accountIcon: accountsTable.icon,
+        transferId: financeTable.transferId,
+        type: financeTable.type,
+        amount: financeTable.amount,
+        category: financeTable.category,
+        description: financeTable.description,
+        payee: financeTable.payee,
+        date: financeTable.date,
+        isSpecial: financeTable.isSpecial,
+        budgetId: financeTable.budgetId,
+        taskId: financeTable.taskId,
+        receiptUrl: financeTable.receiptUrl,
+        createdAt: financeTable.createdAt
+      })
       .from(financeTable)
+      .leftJoin(accountsTable, eq(financeTable.accountId, accountsTable.id))
       .where(and(...filters))
       .orderBy(desc(financeTable.date), desc(financeTable.createdAt))
       .limit(limit + 1);
@@ -139,8 +175,8 @@ ledgerRoute.get('/ledger', async (c) => {
   }
 });
 
-// ── POST /transactions (Create Income/Expense Entry) ──────────────
-ledgerRoute.post('/transactions', async (c) => {
+// ── Handler: Create Income/Expense Entry ────────────────────────────
+const handleCreateTransaction = async (c: any) => {
   try {
     const userId = c.get('userId')!;
     const body = await c.req.json();
@@ -150,42 +186,91 @@ ledgerRoute.post('/transactions', async (c) => {
     }
 
     const db = getDb(c.env);
+    let linkedAccount: typeof accountsTable.$inferSelect | undefined;
+
+    // 1. If accountId is provided, verify account existence and ownership
+    if (parsed.data.accountId) {
+      linkedAccount = await db
+        .select()
+        .from(accountsTable)
+        .where(and(eq(accountsTable.id, parsed.data.accountId), eq(accountsTable.userId, userId)))
+        .get();
+
+      if (!linkedAccount) {
+        return jsonError(c, 'Account not found', 'NOT_FOUND', 404);
+      }
+    }
+
     const id = `fin_${crypto.randomUUID().replace(/-/g, '').slice(0, 20)}`;
     const todayStr = new Date().toISOString().slice(0, 10);
 
     const newEntry = {
       id,
       userId,
+      accountId: parsed.data.accountId || null,
       type: parsed.data.type,
       amount: parsed.data.amount,
       category: parsed.data.category,
       description: parsed.data.description || null,
+      payee: parsed.data.payee || null,
+      receiptUrl: parsed.data.receiptUrl || null,
       date: parsed.data.date || todayStr,
       isSpecial: parsed.data.isSpecial ?? 0,
       budgetId: parsed.data.budgetId || null
     };
 
-    await db.insert(financeTable).values(newEntry);
+    // 2. Prepare atomic batch operations
+    const batchOperations: [any, ...any[]] = [
+      db.insert(financeTable).values(newEntry)
+    ];
 
-    // If attached to budget and is an expense, optionally update budget current amount
-    if (parsed.data.budgetId && parsed.data.type === 'expense') {
-      await db
-        .update(budgetsTable)
-        .set({
-          currentAmount: sql`${budgetsTable.currentAmount} + ${parsed.data.amount}`
-        })
-        .where(eq(budgetsTable.id, parsed.data.budgetId));
+    // Increment / Decrement account.currentBalance atomically
+    if (parsed.data.accountId && linkedAccount) {
+      const balanceDelta = parsed.data.type === 'income' ? parsed.data.amount : -parsed.data.amount;
+      batchOperations.push(
+        db
+          .update(accountsTable)
+          .set({
+            currentBalance: sql`${accountsTable.currentBalance} + ${balanceDelta}`
+          })
+          .where(eq(accountsTable.id, parsed.data.accountId))
+      );
     }
 
-    return jsonOk(c, { transaction: newEntry, message: 'Transaction recorded successfully' }, 201);
+    // If attached to budget and is an expense, update budget current amount
+    if (parsed.data.budgetId && parsed.data.type === 'expense') {
+      batchOperations.push(
+        db
+          .update(budgetsTable)
+          .set({
+            currentAmount: sql`${budgetsTable.currentAmount} + ${parsed.data.amount}`
+          })
+          .where(eq(budgetsTable.id, parsed.data.budgetId))
+      );
+    }
+
+    await (db.batch as any)(batchOperations);
+
+    const transactionWithAccount = {
+      ...newEntry,
+      accountName: linkedAccount?.name || null,
+      accountColor: linkedAccount?.color || null,
+      accountIcon: linkedAccount?.icon || null
+    };
+
+    return jsonOk(c, { transaction: transactionWithAccount, message: 'Transaction recorded successfully' }, 201);
   } catch (error: any) {
     console.error('Create transaction error:', error);
     return jsonError(c, error?.message || 'Failed to record transaction', 'TRANSACTION_ERROR', 500);
   }
-});
+};
 
-// ── PUT /transactions/:id (Update Entry) ──────────────────────────
-ledgerRoute.put('/transactions/:id', async (c) => {
+// Registered on both /transactions and /ledger
+ledgerRoute.post('/transactions', handleCreateTransaction);
+ledgerRoute.post('/ledger', handleCreateTransaction);
+
+// ── Handler: Update Entry ───────────────────────────────────────────
+const handleUpdateTransaction = async (c: any) => {
   try {
     const userId = c.get('userId')!;
     const id = c.req.param('id');
@@ -206,20 +291,90 @@ ledgerRoute.put('/transactions/:id', async (c) => {
       return jsonError(c, 'Transaction not found', 'NOT_FOUND', 404);
     }
 
+    const batchOperations: any[] = [];
+
+    // Revert previous account balance impact if old transaction was attached to an account
+    if (existing.accountId) {
+      const oldRevertDelta = existing.type === 'income' ? -existing.amount : existing.amount;
+      batchOperations.push(
+        db
+          .update(accountsTable)
+          .set({
+            currentBalance: sql`${accountsTable.currentBalance} + ${oldRevertDelta}`
+          })
+          .where(eq(accountsTable.id, existing.accountId))
+      );
+    }
+
+    const finalAccountId = parsed.data.accountId !== undefined ? parsed.data.accountId : existing.accountId;
+    const finalType = parsed.data.type !== undefined ? parsed.data.type : existing.type;
+    const finalAmount = parsed.data.amount !== undefined ? parsed.data.amount : existing.amount;
+
+    // Apply new account balance impact
+    if (finalAccountId) {
+      const newAcc = await db
+        .select()
+        .from(accountsTable)
+        .where(and(eq(accountsTable.id, finalAccountId), eq(accountsTable.userId, userId)))
+        .get();
+
+      if (!newAcc) {
+        return jsonError(c, 'Target account not found', 'NOT_FOUND', 404);
+      }
+
+      const newDelta = finalType === 'income' ? finalAmount : -finalAmount;
+      batchOperations.push(
+        db
+          .update(accountsTable)
+          .set({
+            currentBalance: sql`${accountsTable.currentBalance} + ${newDelta}`
+          })
+          .where(eq(accountsTable.id, finalAccountId))
+      );
+    }
+
     const updates: Partial<typeof financeTable.$inferInsert> = {};
     if (parsed.data.type) updates.type = parsed.data.type;
     if (parsed.data.amount !== undefined) updates.amount = parsed.data.amount;
     if (parsed.data.category) updates.category = parsed.data.category;
     if (parsed.data.description !== undefined) updates.description = parsed.data.description;
+    if (parsed.data.payee !== undefined) updates.payee = parsed.data.payee;
+    if (parsed.data.receiptUrl !== undefined) updates.receiptUrl = parsed.data.receiptUrl;
+    if (parsed.data.accountId !== undefined) updates.accountId = parsed.data.accountId;
     if (parsed.data.date) updates.date = parsed.data.date;
     if (parsed.data.isSpecial !== undefined) updates.isSpecial = parsed.data.isSpecial;
     if (parsed.data.budgetId !== undefined) updates.budgetId = parsed.data.budgetId;
 
-    await db.update(financeTable).set(updates).where(eq(financeTable.id, id));
+    batchOperations.push(
+      db.update(financeTable).set(updates).where(eq(financeTable.id, id))
+    );
 
+    await (db.batch as any)(batchOperations);
+
+    // Fetch updated transaction with joined account info
     const updated = await db
-      .select()
+      .select({
+        id: financeTable.id,
+        userId: financeTable.userId,
+        accountId: financeTable.accountId,
+        accountName: accountsTable.name,
+        accountColor: accountsTable.color,
+        accountIcon: accountsTable.icon,
+        transferId: financeTable.transferId,
+        type: financeTable.type,
+        amount: financeTable.amount,
+        category: financeTable.category,
+        description: financeTable.description,
+        payee: financeTable.payee,
+        date: financeTable.date,
+        isSpecial: financeTable.isSpecial,
+        budgetId: financeTable.budgetId,
+        taskId: financeTable.taskId,
+        receiptUrl: financeTable.receiptUrl,
+        createdAt: financeTable.createdAt
+      })
       .from(financeTable)
+      .leftJoin(accountsTable, eq(financeTable.accountId, accountsTable.id))
       .where(eq(financeTable.id, id))
       .get();
 
@@ -228,10 +383,13 @@ ledgerRoute.put('/transactions/:id', async (c) => {
     console.error('Update transaction error:', error);
     return jsonError(c, error?.message || 'Failed to update transaction', 'UPDATE_ERROR', 500);
   }
-});
+};
 
-// ── DELETE /transactions/:id ──────────────────────────────────────
-ledgerRoute.delete('/transactions/:id', async (c) => {
+ledgerRoute.put('/transactions/:id', handleUpdateTransaction);
+ledgerRoute.put('/ledger/:id', handleUpdateTransaction);
+
+// ── Handler: Delete Entry ───────────────────────────────────────────
+const handleDeleteTransaction = async (c: any) => {
   try {
     const userId = c.get('userId')!;
     const id = c.req.param('id');
@@ -247,11 +405,31 @@ ledgerRoute.delete('/transactions/:id', async (c) => {
       return jsonError(c, 'Transaction not found', 'NOT_FOUND', 404);
     }
 
-    await db.delete(financeTable).where(eq(financeTable.id, id));
+    const batchOperations: [any, ...any[]] = [
+      db.delete(financeTable).where(eq(financeTable.id, id))
+    ];
+
+    // Revert account balance effect if linked to an account
+    if (existing.accountId) {
+      const revertDelta = existing.type === 'income' ? -existing.amount : existing.amount;
+      batchOperations.push(
+        db
+          .update(accountsTable)
+          .set({
+            currentBalance: sql`${accountsTable.currentBalance} + ${revertDelta}`
+          })
+          .where(eq(accountsTable.id, existing.accountId))
+      );
+    }
+
+    await (db.batch as any)(batchOperations);
 
     return jsonOk(c, { message: 'Transaction deleted successfully' });
   } catch (error: any) {
     console.error('Delete transaction error:', error);
     return jsonError(c, error?.message || 'Failed to delete transaction', 'DELETE_ERROR', 500);
   }
-});
+};
+
+ledgerRoute.delete('/transactions/:id', handleDeleteTransaction);
+ledgerRoute.delete('/ledger/:id', handleDeleteTransaction);

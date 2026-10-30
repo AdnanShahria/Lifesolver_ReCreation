@@ -216,14 +216,19 @@ export const PlannerPage: React.FC = () => {
       />
 
       {/* ── Column 3: Center Workspace ── */}
-      <main className={`flex-1 flex flex-col min-w-0 overflow-hidden transition-colors duration-200 ${
-        isDark ? 'bg-[#09090b]' : 'bg-[#fafafa]'
+      <main className={`relative flex-1 flex flex-col min-w-0 overflow-hidden transition-colors duration-200 ${
+        isDark ? 'bg-[#090a0f]' : 'bg-[#fbfbfd]'
       }`}>
+        {/* Apple Atmospheric Mesh Glows (Provides backdrop light for authentic glass refraction) */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-violet-400/10 dark:bg-violet-600/15 blur-[120px]" />
+          <div className="absolute top-1/3 -right-20 w-96 h-96 rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-[130px]" />
+          <div className="absolute -bottom-20 left-1/3 w-[500px] h-[500px] rounded-full bg-indigo-300/10 dark:bg-indigo-500/10 blur-[140px]" />
+        </div>
+
         {/* Workspace Top Header Bar */}
-        <header className={`h-16 px-6 border-b flex items-center justify-between shrink-0 backdrop-blur-xl z-10 transition-colors ${
-          isDark
-            ? 'bg-[#0c0d12]/80 border-white/[0.08] text-white shadow-xs'
-            : 'bg-white/80 border-black/[0.06] text-zinc-900 shadow-xs'
+        <header className={`h-16 px-6 flex items-center justify-between shrink-0 z-10 transition-colors apple-navbar-material ${
+          isDark ? 'text-white' : 'text-zinc-900'
         }`}>
           {/* Left Title & Mobile Menu */}
           <div className="flex items-center space-x-3 min-w-0">
@@ -266,7 +271,7 @@ export const PlannerPage: React.FC = () => {
                 className={`w-full pl-9 pr-7 py-1.5 rounded-xl border text-xs focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/10 transition-all font-medium ${
                   isDark
                     ? 'bg-zinc-800/80 border-white/[0.08] text-white placeholder-zinc-500'
-                    : 'bg-[#f5f5f7] border-black/[0.06] text-zinc-900 placeholder-zinc-400 focus:bg-white'
+                    : 'bg-white/70 border-black/[0.06] text-zinc-900 placeholder-zinc-400 focus:bg-white shadow-[inset_0_1px_1px_rgba(0,0,0,0.03)]'
                 }`}
               />
               {searchQuery && (
@@ -280,22 +285,18 @@ export const PlannerPage: React.FC = () => {
               )}
             </div>
 
-            {/* View Mode Switcher */}
-            <div className={`flex items-center p-1 rounded-2xl border shadow-xs ${
-              isDark ? 'bg-zinc-900 border-white/[0.08]' : 'bg-[#f5f5f7] border-black/[0.06]'
-            }`}>
+            {/* View Mode Switcher (Apple Segmented Tray) */}
+            <div className="apple-segmented-tray">
               <button
                 type="button"
                 title="List View"
                 onClick={() => setViewMode('list')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center space-x-1.5 px-3 py-1 text-xs transition-all ${
                   viewMode === 'list'
-                    ? isDark
-                      ? 'bg-zinc-800 text-violet-300 shadow-sm border border-white/[0.08]'
-                      : 'bg-white text-violet-700 shadow-sm border border-black/[0.04]'
+                    ? 'apple-segmented-thumb'
                     : isDark
                     ? 'text-zinc-400 hover:text-white'
-                    : 'text-zinc-600 hover:text-zinc-950'
+                    : 'text-zinc-600 hover:text-zinc-950 font-medium'
                 }`}
               >
                 <List className="w-3.5 h-3.5" />
@@ -306,14 +307,12 @@ export const PlannerPage: React.FC = () => {
                 type="button"
                 title="Kanban Board View"
                 onClick={() => setViewMode('kanban')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center space-x-1.5 px-3 py-1 text-xs transition-all ${
                   viewMode === 'kanban'
-                    ? isDark
-                      ? 'bg-zinc-800 text-violet-300 shadow-sm border border-white/[0.08]'
-                      : 'bg-white text-violet-700 shadow-sm border border-black/[0.04]'
+                    ? 'apple-segmented-thumb'
                     : isDark
                     ? 'text-zinc-400 hover:text-white'
-                    : 'text-zinc-600 hover:text-zinc-950'
+                    : 'text-zinc-600 hover:text-zinc-950 font-medium'
                 }`}
               >
                 <Columns3 className="w-3.5 h-3.5" />
@@ -324,14 +323,12 @@ export const PlannerPage: React.FC = () => {
                 type="button"
                 title="Eisenhower Matrix View"
                 onClick={() => setViewMode('matrix')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center space-x-1.5 px-3 py-1 text-xs transition-all ${
                   viewMode === 'matrix'
-                    ? isDark
-                      ? 'bg-zinc-800 text-violet-300 shadow-sm border border-white/[0.08]'
-                      : 'bg-white text-violet-700 shadow-sm border border-black/[0.04]'
+                    ? 'apple-segmented-thumb'
                     : isDark
                     ? 'text-zinc-400 hover:text-white'
-                    : 'text-zinc-600 hover:text-zinc-950'
+                    : 'text-zinc-600 hover:text-zinc-950 font-medium'
                 }`}
               >
                 <Grid2X2 className="w-3.5 h-3.5" />
@@ -339,14 +336,14 @@ export const PlannerPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Prominent "+ New Task" Button */}
+            {/* Prominent "+ New Task" Button (Apple Capsule CTA) */}
             <button
               type="button"
               onClick={() => {
                 setCreateModalDefaultPriority('medium');
                 setIsCreateModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-md shadow-violet-600/20 active:scale-95 flex items-center space-x-1.5 transition-all"
+              className="px-4 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(124,58,237,0.35),inset_0_1px_1px_rgba(255,255,255,0.35)] active:scale-95 flex items-center space-x-1.5 transition-all"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span className="hidden sm:inline">New Task</span>
@@ -355,9 +352,7 @@ export const PlannerPage: React.FC = () => {
         </header>
 
         {/* Scrollable Workspace Body */}
-        <div className={`flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6 custom-scrollbar ${
-          isDark ? 'bg-[#09090b]' : 'bg-[#fafafa]'
-        }`}>
+        <div className="relative z-1 flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6 custom-scrollbar">
           {/* ── Quick Add Input (NLP Powered) ── */}
           <div className="max-w-4xl mx-auto">
             <QuickAddTaskInput

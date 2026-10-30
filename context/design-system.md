@@ -17,3 +17,21 @@
 ## 3. Zero Emojis Policy & Lucide Icons
 - Strictly zero emojis in buttons, tabs, status pills, or headers.
 - Exclusively Lucide React / Lucide Icons with consistent 16px/18px stroke widths (1.5px/1.75px).
+
+## 4. Apple Human Interface Typography System
+- **UI & System Controls (Sans-Serif)**:
+  - System font: `San Francisco (SF Pro Text & SF Pro Display)` via `-apple-system, BlinkMacSystemFont`.
+  - Cross-platform fallbacks: `"OPPOSans", "OPPO Sans", "Plus Jakarta Sans", system-ui, sans-serif`.
+  - Tracking: `-0.025em` on Large Display titles (`tracking-apple-tight`), `-0.01em` on Body/Subhead (`tracking-apple-subhead`).
+  - Hierarchy: Navigation, controls, buttons, toolbars, and forms strictly use sans-serif to preserve platform feel and legibility.
+- **Editorial & Brand Accents (Serif)**:
+  - System font: `New York (NY)` via `"New York", -apple-system-ui-serif`.
+  - Cross-platform fallbacks: `"Source Serif 4", "Playfair Display", "Charter", Georgia, serif`.
+  - Usage: Reserved for quotes, doctrine cards, manifesto callouts, and key brand moments. Never on buttons or primary navigation.
+- **Financial, Code & Data Numerals (Monospace)**:
+  - System font: `SF Mono` via `"SF Mono", ui-monospace, Menlo, Monaco, Consolas`.
+  - Cross-platform fallback: `"JetBrains Mono", monospace`.
+  - Features: Monospaced figures with `font-feature-settings: "tnum" 1, "cv01" 1` and `tabular-nums` so numeric amounts (balances, timers, currency) never cause layout jitter.
+- **Accessibility & Contrast**:
+  - Minimum 11pt on mobile, 10pt on desktop. Avoid thin/ultralight weights for body text.
+  - Contrast ratio strictly >= 4.5:1 for body copy and >= 3:1 for large/bold headlines.

@@ -1,10 +1,149 @@
+// ── Accounts & Multi-Currency Transfers ───────────────────────────
+
+export type AccountType =
+  | 'bank'
+  | 'mobile_wallet'
+  | 'online_wallet'
+  | 'cash'
+  | 'credit_card'
+  | 'crypto'
+  | 'investment'
+  | 'custom';
+
+export type AccountSubtype =
+  | 'bkash'
+  | 'nagad'
+  | 'paypal'
+  | 'wise'
+  | 'stripe'
+  | 'crypto'
+  | 'revolut'
+  | 'bank'
+  | 'cash'
+  | 'custom'
+  | null;
+
+export type Currency =
+  | 'USD'
+  | 'BDT'
+  | 'EUR'
+  | 'GBP'
+  | 'INR'
+  | 'CAD'
+  | 'AUD'
+  | 'JPY'
+  | 'CNY'
+  | 'BTC'
+  | 'ETH'
+  | string;
+
+export interface FinancialAccount {
+  id: string;
+  userId: string;
+  name: string;
+  type: AccountType;
+  subtype?: AccountSubtype;
+  currency: string;
+  currentBalance: number;
+  initialBalance: number;
+  creditLimit?: number;
+  color: string;
+  icon: string;
+  isActive: number;
+  excludeFromNetWorth: number;
+  createdAt: string;
+}
+
+export interface AccountTransfer {
+  id: string;
+  userId: string;
+  fromAccountId: string;
+  toAccountId: string;
+  amount: number;
+  destinationAmount: number;
+  exchangeRate: number;
+  feeAmount: number;
+  date: string;
+  notes?: string | null;
+  fromAccountName?: string;
+  toAccountName?: string;
+  createdAt: string;
+}
+
+export interface CreateAccountInput {
+  name: string;
+  type: AccountType;
+  subtype?: AccountSubtype;
+  currency?: string;
+  initialBalance?: number;
+  creditLimit?: number;
+  color?: string;
+  icon?: string;
+  excludeFromNetWorth?: number;
+}
+
+export interface UpdateAccountInput {
+  name?: string;
+  type?: AccountType;
+  subtype?: AccountSubtype;
+  currency?: string;
+  creditLimit?: number;
+  color?: string;
+  icon?: string;
+  isActive?: number;
+  excludeFromNetWorth?: number;
+}
+
+export interface AdjustBalanceInput {
+  accountId: string;
+  newBalance: number;
+  reason?: string;
+  logTransaction?: boolean;
+}
+
+export interface TransferInput {
+  fromAccountId: string;
+  toAccountId: string;
+  amount: number;
+  destinationAmount?: number;
+  exchangeRate?: number;
+  feeAmount?: number;
+  date?: string;
+  notes?: string;
+}
+
+export interface AccountsSummary {
+  totalBalance: number;
+  netWorth: number;
+  accountsCount: number;
+  byType?: Record<string, number>;
+}
+
+export interface AccountsResponse {
+  accounts: FinancialAccount[];
+  summary?: AccountsSummary;
+}
+
+export interface TransfersResponse {
+  transfers: AccountTransfer[];
+  totalTransfers?: number;
+}
+
+// ── Transactions & General Ledger ─────────────────────────────────
+
 export interface Transaction {
   id: string;
   userId: string;
+  accountId?: string | null;
+  accountName?: string | null;
+  accountColor?: string | null;
   type: 'income' | 'expense';
   amount: number;
   category: string;
   description: string | null;
+  payee?: string | null;
+  transferId?: string | null;
+  tags?: string[];
   date: string;
   isSpecial: number; // 0 = everyday cashflow, 1 = capital/investment
   budgetId: string | null;

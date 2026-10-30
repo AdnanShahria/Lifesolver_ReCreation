@@ -39,6 +39,7 @@ import type {
   FinanceAnalyticsResponse
 } from '../types';
 import { formatCurrency } from '../hooks/useFinance';
+import { getCategoryStyle } from './LedgerTable';
 
 interface FinanceOverviewDemoProps {
   summary?: LedgerSummary;
@@ -636,7 +637,8 @@ export const FinanceOverviewDemo: React.FC<FinanceOverviewDemoProps> = ({
               </div>
             ) : (
               recentTransactions.map((tx) => {
-                const Icon = getCategoryIcon(tx.category);
+                const categoryStyle = getCategoryStyle(tx.category);
+                const Icon = categoryStyle.icon;
                 const isIncome = tx.type === 'income';
 
                 return (
@@ -650,23 +652,19 @@ export const FinanceOverviewDemo: React.FC<FinanceOverviewDemoProps> = ({
                   >
                     <div className="flex items-center space-x-3 min-w-0">
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                          isIncome
-                            ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
-                            : 'bg-zinc-800/70 border border-zinc-700 text-zinc-400'
-                        }`}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${categoryStyle.lightBg} ${categoryStyle.darkBg}`}
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-5 h-5" />
                       </div>
 
                       <div className="min-w-0">
                         <div className={`text-xs font-semibold truncate ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>
-                          {tx.description || tx.category}
+                          {tx.payee || tx.description || tx.category}
                         </div>
                         <div className="text-[10px] text-zinc-500 flex items-center space-x-1.5 font-mono">
-                          <span>{tx.category}</span>
+                          <span>{tx.accountName || 'Cash'}</span>
                           <span>•</span>
-                          <span>{tx.isSpecial === 1 ? 'Special Capital' : 'Cashflow'}</span>
+                          <span>{tx.category}</span>
                         </div>
                       </div>
                     </div>

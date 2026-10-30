@@ -2,6 +2,21 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ─────────────────────────────────────────────────────────────
+   APPLE HUMAN INTERFACE GUIDELINES TYPOGRAPHY DESIGN TOKENS
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "OPPOSans", "OPPO Sans", "Plus Jakarta Sans", system-ui, -apple-system-ui-sans, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "OPPOSans", "OPPO Sans", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-serif: "New York", -apple-system-ui-serif, "Source Serif 4", "Playfair Display", "Charter", Georgia, "Times New Roman", serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "JetBrains Mono", monospace;
+
+  --tracking-apple-tight: -0.028em;
+  --tracking-apple-headline: -0.016em;
+  --tracking-apple-subhead: -0.006em;
+  --tracking-apple-caps: 0.06em;
+}
+
 @layer base {
   :root {
     /* Apple Human Interface System Palette (Dark Default) */
@@ -71,19 +86,21 @@
   body {
     background-color: var(--apple-bg-base);
     color: var(--apple-label-primary);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, -apple-system-ui-sans, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "OPPOSans", "OPPO Sans", "Plus Jakarta Sans", system-ui, -apple-system-ui-sans, sans-serif;
     letter-spacing: -0.011em;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* SF Mono Typography for tabular numerals, stats, and code */
-  code, pre, kbd, .font-mono {
+  code, pre, kbd, .font-mono, .tabular-nums {
     font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "JetBrains Mono", monospace;
     font-feature-settings: "tnum" 1, "cv01" 1;
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -91,22 +108,24 @@
    APPLE TYPOGRAPHY UTILITIES (SF Pro, New York & SF Mono)
    ───────────────────────────────────────────────────────────── */
 .font-apple-display {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "OPPOSans", "OPPO Sans", "Plus Jakarta Sans", system-ui, sans-serif;
   letter-spacing: -0.025em;
 }
 
 .font-apple-text {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "OPPOSans", "OPPO Sans", "Plus Jakarta Sans", system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
 
 .font-apple-serif {
-  font-family: "New York", -apple-system-ui-serif, "Playfair Display", "Charter", Georgia, "Times New Roman", serif;
+  font-family: "New York", -apple-system-ui-serif, "Source Serif 4", "Playfair Display", "Charter", Georgia, "Times New Roman", serif;
+  letter-spacing: -0.015em;
 }
 
 .font-apple-mono {
   font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "JetBrains Mono", monospace;
-  font-feature-settings: "tnum" 1;
+  font-feature-settings: "tnum" 1, "cv01" 1;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Apple Tracking Scales */
@@ -126,6 +145,111 @@
 /* ─────────────────────────────────────────────────────────────
    APPLE TWO-LAYER MATERIAL SYSTEM (LIQUID GLASS & SATIN CARDS)
    ───────────────────────────────────────────────────────────── */
+
+/* Apple Universal Glassmorphic Materials (Light & Dark Responsive) */
+.apple-sidebar-material {
+  background: rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: inset -1px 0 0 0 rgba(255, 255, 255, 0.8);
+}
+.dark .apple-sidebar-material,
+html.dark .apple-sidebar-material {
+  background: rgba(12, 13, 18, 0.75);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset -1px 0 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.apple-navbar-material {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.9),
+    0 4px 20px -4px rgba(0, 0, 0, 0.03);
+}
+.dark .apple-navbar-material,
+html.dark .apple-navbar-material {
+  background: rgba(12, 13, 18, 0.76);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.06),
+    0 8px 24px -6px rgba(0, 0, 0, 0.5);
+}
+
+.apple-card-glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 10px 30px -6px rgba(0, 0, 0, 0.04),
+    0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark .apple-card-glass,
+html.dark .apple-card-glass {
+  background: rgba(20, 21, 28, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+    0 16px 36px -10px rgba(0, 0, 0, 0.6);
+}
+
+.apple-modal-glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(36px) saturate(200%);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
+    0 24px 64px -16px rgba(0, 0, 0, 0.15),
+    0 8px 24px -4px rgba(0, 0, 0, 0.06);
+}
+.dark .apple-modal-glass,
+html.dark .apple-modal-glass {
+  background: rgba(18, 19, 26, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+    0 32px 72px -16px rgba(0, 0, 0, 0.85);
+}
+
+.apple-segmented-tray {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 9999px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+}
+.dark .apple-segmented-tray,
+html.dark .apple-segmented-tray {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.apple-segmented-thumb {
+  background: #ffffff;
+  color: #1d1d1f;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 0.5px 0 rgba(255, 255, 255, 1);
+  font-weight: 600;
+  border-radius: 9999px;
+}
+.dark .apple-segmented-thumb,
+html.dark .apple-segmented-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.25);
+}
 
 /* Apple Liquid Glass Floating Capsule */
 .apple-nav-glass {

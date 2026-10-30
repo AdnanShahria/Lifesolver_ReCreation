@@ -317,12 +317,12 @@ export const TaskListView: React.FC<TaskListViewProps> = ({
     <div className="space-y-6">
       {/* ── Empty State ── */}
       {totalActive === 0 && completedTasks.length === 0 && (
-        <div className="text-center py-20 px-6 bg-white rounded-3xl border border-dashed border-black/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
-          <div className="w-14 h-14 rounded-3xl bg-violet-500/10 border border-violet-500/20 mx-auto flex items-center justify-center text-violet-600 shadow-sm">
-            <CheckCircle2 className="w-7 h-7" />
+        <div className="text-center py-20 px-6 apple-card-glass rounded-3xl space-y-4">
+          <div className="w-16 h-16 rounded-3xl bg-violet-500/10 border border-violet-500/20 mx-auto flex items-center justify-center text-violet-600 shadow-sm ring-4 ring-violet-500/5">
+            <CheckCircle2 className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <div className="text-base font-bold text-[#1d1d1f]">All Clear in this View</div>
+            <div className="text-base font-bold text-[#1d1d1f] dark:text-zinc-100">All Clear in this View</div>
             <p className="text-xs text-[#8d8d93] max-w-sm mx-auto">
               You are completely caught up! Add a new task above or launch the fast-creation modal.
             </p>
@@ -331,7 +331,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({
             <button
               type="button"
               onClick={onOpenCreateTask}
-              className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-md shadow-violet-600/20 transition-all active:scale-95"
+              className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(124,58,237,0.35),inset_0_1px_1px_rgba(255,255,255,0.35)] transition-all active:scale-95"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Create New Task</span>

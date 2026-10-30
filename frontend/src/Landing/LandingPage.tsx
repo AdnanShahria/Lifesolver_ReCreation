@@ -170,7 +170,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
               <img
                 src={logoImg}
                 alt="LifeSolver Logo"
-                className="w-8 h-8 rounded-xl object-cover shadow-md shadow-[#00c5ff]/20 group-hover:scale-105 transition-transform duration-300 ring-1 ring-black/[0.08] dark:ring-white/[0.12]"
+                className="w-8 h-8 rounded-xl object-cover shadow-md shadow-cyan-500/30 group-hover:scale-105 transition-transform duration-300 ring-1 ring-cyan-500/40"
               />
               <div className="flex items-baseline space-x-1.5">
                 <span className={`font-bold text-base tracking-tight font-apple-display transition-colors ${
@@ -622,80 +622,97 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
       </section>
 
       {/* ── 13. APPLE MINIMALIST HIERARCHICAL FOOTER ─────────── */}
-      <footer className="border-t border-white/[0.08] py-14 relative z-10 bg-black/90 text-xs">
+      <footer className="border-t border-white/[0.08] py-14 relative z-10 bg-black/95 text-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             
-            {/* Col 1: Identity */}
-            <div className="space-y-3 md:col-span-1">
-              <div className="flex items-center space-x-2.5">
+            {/* Col 1: Identity & Hexagonal Mesh */}
+            <div className="space-y-4 md:col-span-1">
+              <div className="flex items-center space-x-3">
                 <img
                   src={logoImg}
-                  alt="LifeSolver"
-                  className="w-8 h-8 rounded-xl object-cover shadow-sm ring-1 ring-white/10"
+                  alt="LifeSolver Logo"
+                  className="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-cyan-500/25 ring-1 ring-cyan-500/40"
                 />
-                <span className="font-bold text-white text-sm font-apple-display">LifeSolver</span>
+                <div>
+                  <div className="flex items-baseline space-x-1.5">
+                    <span className="font-bold text-white text-base font-apple-display tracking-tight">Life<span className="text-gradient-ice font-semibold">Solver</span></span>
+                    <span className="text-[10px] text-cyan-400 font-mono tracking-wider font-semibold">v3.2</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400 font-mono">Omniscient Life OS</div>
+                </div>
               </div>
-              <p className="text-zinc-400 leading-relaxed font-apple-text">
-                The interconnected life operating system and second brain command center.
+              <p className="text-zinc-400 leading-relaxed font-apple-text text-xs">
+                The interconnected life operating system unifying your Planner, Mind, Finance, Health, Focus, and Assets around an autonomous AI Core.
               </p>
-              <div className="font-mono text-[11px] text-zinc-500">
-                Crafted with Neon Precision and AI.
+              <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-cyan-950/40 border border-cyan-800/40 text-[10px] font-mono text-cyan-300">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span>6-Node Hexagonal Mesh</span>
               </div>
             </div>
 
-            {/* Col 2: Pillars */}
-            <div className="space-y-2">
-              <div className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono">
-                Pillars
+            {/* Col 2: The 6 Pillars */}
+            <div className="space-y-3">
+              <div className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono flex items-center space-x-1.5">
+                <span className="text-cyan-400">#</span>
+                <span>The 6 Pillars</span>
               </div>
-              <ul className="space-y-2 text-zinc-400 font-apple-text">
-                <li><button onClick={() => scrollTo('features')} className="hover:text-white transition-colors">Executive Planner</button></li>
-                <li><button onClick={() => scrollTo('features')} className="hover:text-white transition-colors">Sovereign Finance</button></li>
-                <li><button onClick={() => scrollTo('features')} className="hover:text-white transition-colors">Mind & Second Brain</button></li>
-                <li><button onClick={() => scrollTo('features')} className="hover:text-white transition-colors">Health & Habits</button></li>
-                <li><button onClick={() => scrollTo('features')} className="hover:text-white transition-colors">Focus Shield</button></li>
+              <ul className="space-y-2 text-zinc-400 font-apple-text text-xs">
+                <li><button onClick={() => scrollTo('features')} className="hover:text-cyan-300 transition-colors flex items-center space-x-2"><span>📅</span> <span>Executive Planner</span></button></li>
+                <li><button onClick={() => scrollTo('features')} className="hover:text-cyan-300 transition-colors flex items-center space-x-2"><span>📝</span> <span>Mind &amp; Second Brain</span></button></li>
+                <li><button onClick={() => scrollTo('features')} className="hover:text-cyan-300 transition-colors flex items-center space-x-2"><span>🪙</span> <span>Sovereign Finance</span></button></li>
+                <li><button onClick={() => scrollTo('features')} className="hover:text-cyan-300 transition-colors flex items-center space-x-2"><span>💓</span> <span>Health &amp; Vitality</span></button></li>
+                <li><button onClick={() => scrollTo('features')} className="hover:text-cyan-300 transition-colors flex items-center space-x-2"><span>🔔</span> <span>Focus Shield &amp; Habits</span></button></li>
+                <li><button onClick={() => scrollTo('features')} className="hover:text-cyan-300 transition-colors flex items-center space-x-2"><span>📦</span> <span>Asset Ledger &amp; Vault</span></button></li>
               </ul>
             </div>
 
             {/* Col 3: Architecture */}
-            <div className="space-y-2">
-              <div className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono">
-                Architecture
+            <div className="space-y-3">
+              <div className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono flex items-center space-x-1.5">
+                <span className="text-violet-400">#</span>
+                <span>Architecture</span>
               </div>
-              <ul className="space-y-2 text-zinc-400 font-apple-text">
-                <li><button onClick={() => scrollTo('orbit-ai')} className="hover:text-white transition-colors">Orbit AI Engine</button></li>
+              <ul className="space-y-2 text-zinc-400 font-apple-text text-xs">
+                <li><button onClick={() => scrollTo('orbit-ai')} className="hover:text-white transition-colors">Orbit AI Copilot Core</button></li>
                 <li><button onClick={() => scrollTo('why')} className="hover:text-white transition-colors">Zero-Knowledge Vault</button></li>
-                <li><button onClick={() => scrollTo('why')} className="hover:text-white transition-colors">Offline-First SQLite</button></li>
-                <li><Link to="/auth" className="hover:text-violet-300 text-violet-400 transition-colors flex items-center space-x-1"><span>Auth Portal & Sign In</span> &rarr;</Link></li>
+                <li><button onClick={() => scrollTo('why')} className="hover:text-white transition-colors">Offline-First SQLite Cache</button></li>
+                <li><Link to="/auth" className="hover:text-cyan-300 text-cyan-400 transition-colors flex items-center space-x-1"><span>Auth Portal &amp; Sign In</span> &rarr;</Link></li>
+                <li><Link to="/sysadmin" className="hover:text-zinc-300 text-zinc-500 transition-colors flex items-center space-x-1"><span>SysAdmin Cockpit</span> &rarr;</Link></li>
               </ul>
             </div>
 
             {/* Col 4: Telemetry & Edge Status */}
-            <div className="space-y-2">
-              <div className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono">
-                System Status
+            <div className="space-y-3">
+              <div className="font-semibold text-white uppercase tracking-wider text-[11px] font-mono flex items-center space-x-1.5">
+                <span className="text-emerald-400">#</span>
+                <span>System Status</span>
               </div>
               <p className="text-zinc-400 leading-relaxed text-[11px] font-apple-text">
-                Global Edge Cluster operational. Zero third-party telemetry, zero trackers.
+                Global Edge Enclave active. End-to-end PBKDF2 Web Crypto authentication. Zero third-party telemetry.
               </p>
               <div className="pt-2 text-emerald-400 font-mono text-[11px] flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Cloudflare Distributed D1 Online</span>
+              </div>
+              <div className="text-zinc-500 font-mono text-[10px]">
+                Latency: &lt;15ms global edge routing
               </div>
             </div>
           </div>
 
           <div className="pt-8 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-[11px] text-zinc-500 font-mono gap-4">
             <div>
-              &copy; {new Date().getFullYear()} LifeSolver. All rights are preserved by Orbit Saas (orbitsaas.cloud).
+              &copy; {new Date().getFullYear()} LifeSolver. All rights reserved by Orbit SaaS (<a href="https://orbitsaas.cloud" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-300 underline underline-offset-2">orbitsaas.cloud</a>).
             </div>
             <div className="flex items-center space-x-4">
-              <span>Local-First</span>
+              <span className="text-zinc-400">Local-First</span>
               <span>·</span>
-              <span>AES-256 Vault</span>
+              <span className="text-zinc-400">AES-256 Vault</span>
               <span>·</span>
-              <span>Apple HIG Craft</span>
+              <span className="text-zinc-400">Hexagonal Life Mesh</span>
+              <span>·</span>
+              <span className="text-zinc-400">Apple HIG Craft</span>
             </div>
           </div>
         </div>

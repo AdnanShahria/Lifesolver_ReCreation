@@ -265,12 +265,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <aside
-        className={`hidden md:flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 select-none font-sans overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`hidden md:flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 select-none font-sans overflow-hidden transition-all duration-300 ease-in-out apple-sidebar-material ${
           isExpanded ? 'w-64' : 'w-[72px]'
         } ${
-          isDark
-            ? 'bg-[#0c0d12] border-r border-white/[0.08] text-zinc-100'
-            : 'bg-[#f5f5f7] border-r border-black/[0.08] text-zinc-900'
+          isDark ? 'text-zinc-100' : 'text-zinc-900'
         }`}
       >
         {/* ── Fixed Top Header Section ── */}
@@ -287,8 +285,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
               className={`flex items-center rounded-2xl p-2 cursor-pointer transition-all ${
                 isDark
-                  ? 'hover:bg-white/[0.06] border border-white/[0.08]'
-                  : 'hover:bg-white border border-black/[0.06] bg-white/70 shadow-xs'
+                  ? 'hover:bg-white/[0.06] border border-white/[0.08] bg-white/[0.02]'
+                  : 'hover:bg-white/90 border border-white/80 bg-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.03)]'
               } ${isExpanded ? 'justify-between space-x-2.5' : 'justify-center'}`}
             >
               <div className="flex items-center space-x-2.5 min-w-0">
@@ -296,7 +294,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <img
                   src={logoImg}
                   alt="LifeSolver"
-                  className="w-9 h-9 rounded-2xl object-cover shrink-0 shadow-xs ring-1 ring-black/[0.08] dark:ring-white/[0.12]"
+                  className="w-9 h-9 rounded-2xl object-cover shrink-0 shadow-sm shadow-cyan-500/10 ring-1 ring-cyan-500/25 dark:ring-cyan-500/35"
                 />
 
                 {isExpanded && (
@@ -366,14 +364,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all border ${
                 isDark
                   ? 'bg-white/[0.04] border-white/[0.08] text-zinc-400 hover:text-white hover:border-white/[0.14]'
-                  : 'bg-white border-black/[0.06] text-zinc-600 hover:text-zinc-950 hover:border-black/[0.12] shadow-xs'
+                  : 'bg-white/60 hover:bg-white/90 border-white/80 text-zinc-600 hover:text-zinc-950 shadow-[0_1px_4px_rgba(0,0,0,0.03)]'
               }`}
             >
               <div className="flex items-center space-x-2">
                 <Search className="w-3.5 h-3.5 text-violet-500" />
                 <span className="font-medium">Command Palette...</span>
               </div>
-              <kbd className="px-1.5 py-0.5 rounded-md bg-[#f5f5f7] dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 border border-black/[0.06] dark:border-white/[0.08]">
+              <kbd className="px-1.5 py-0.5 rounded-md bg-white/70 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 dark:text-zinc-400 border border-black/[0.06] dark:border-white/[0.08] shadow-[0_1px_1px_rgba(0,0,0,0.04)]">
                 ⌘K
               </kbd>
             </button>
@@ -407,10 +405,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`w-full min-h-[40px] flex items-center rounded-2xl px-3 py-2 text-xs transition-all relative group ${
                       active
                         ? isDark
-                          ? 'bg-white/[0.1] text-white font-bold shadow-xs border border-white/[0.12]'
-                          : 'bg-white text-zinc-950 font-bold shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-black/[0.08]'
+                          ? 'bg-white/[0.12] text-white font-bold shadow-xs border border-white/[0.14]'
+                          : 'bg-white/90 text-zinc-950 font-bold shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,1)] border border-white/90'
                         : isDark
-                        ? 'text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04]'
+                        ? 'text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.05]'
                         : 'text-zinc-700 hover:text-zinc-950 hover:bg-black/[0.04] font-medium'
                     } ${isExpanded ? 'justify-start space-x-3' : 'justify-center'}`}
                   >
@@ -548,15 +546,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* ── Fixed Bottom Section: Theme & User Profile (Never cut off) ── */}
         <div
           className={`p-3 shrink-0 border-t space-y-2.5 ${
-            isDark ? 'border-white/[0.08] bg-[#0c0d12]' : 'border-black/[0.06] bg-[#f5f5f7]'
+            isDark ? 'border-white/[0.08] bg-white/[0.02]' : 'border-black/[0.05] bg-white/40'
           }`}
         >
           {/* Segmented Light / Dark Toggle Pill */}
           <div
             className={`flex items-center rounded-2xl p-1 transition-all ${
               isDark
-                ? 'bg-zinc-900 border border-white/[0.08]'
-                : 'bg-white border border-black/[0.06] shadow-xs'
+                ? 'bg-zinc-900/80 border border-white/[0.08]'
+                : 'bg-black/[0.04] border border-black/[0.04]'
             }`}
           >
             <button
@@ -567,7 +565,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               title="Switch to Light Mode"
               className={`flex-1 min-h-[30px] flex items-center justify-center space-x-1.5 rounded-xl text-[11px] font-semibold transition-all ${
                 !isDark
-                  ? 'bg-violet-50 text-violet-800 shadow-xs border border-violet-200'
+                  ? 'bg-white text-zinc-950 shadow-[0_2px_6px_rgba(0,0,0,0.08),inset_0_0.5px_0_rgba(255,255,255,1)] font-bold'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -582,7 +580,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               title="Switch to Dark Mode"
               className={`flex-1 min-h-[30px] flex items-center justify-center space-x-1.5 rounded-xl text-[11px] font-semibold transition-all ${
                 isDark
-                  ? 'bg-zinc-800 text-violet-300 shadow-xs border border-zinc-700'
+                  ? 'bg-zinc-800 text-white shadow-xs border border-white/[0.08]'
                   : 'text-zinc-600 hover:text-zinc-950'
               }`}
             >
@@ -599,7 +597,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-full min-h-[44px] flex items-center rounded-2xl p-2 transition-all cursor-pointer ${
                 isDark
                   ? 'hover:bg-white/[0.06] border border-transparent'
-                  : 'hover:bg-white border border-black/[0.04] bg-white/70 shadow-xs'
+                  : 'hover:bg-white/90 border border-white/80 bg-white/60 shadow-[0_1px_4px_rgba(0,0,0,0.03)]'
               } ${isExpanded ? 'justify-between space-x-2.5' : 'justify-center'}`}
             >
               <div className="flex items-center space-x-2.5 min-w-0">

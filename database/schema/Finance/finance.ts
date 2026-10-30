@@ -2,6 +2,44 @@ import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core
 import { sql } from 'drizzle-orm';
 import { usersTable } from '../_core/users';
 
+export const accountsTable = sqliteTable('financial_accounts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(), // e.g. 'Standard Chartered Checking', 'bKash Personal', 'PayPal USD', 'Cash Wallet', 'Binance'
+  type: text('type').notNull(), // 'bank' | 'mobile_wallet' | 'online_wallet' | 'cash' | 'credit_card' | 'crypto' | 'investment' | 'custom'
+  subtype: text('subtype'), // 'bkash' | 'nagad' | 'paypal' | 'wise' | 'stripe' | 'crypto' | 'revolut' | null
+  currency: text('currency').notNull().default('USD'), // 'USD' | 'BDT' | 'EUR' | 'GBP' | 'BTC' | 'ETH' | etc.
+  currentBalance: real('current_balance').notNull().default(0),
+  initialBalance: real('initial_balance').notNull().default(0),
+  creditLimit: real('credit_limit').default(0),
+  color: text('color').default('#8b5cf6'),
+  icon: text('icon').default('Wallet'),
+  isActive: integer('is_active').notNull().default(1),
+  excludeFromNetWorth: integer('exclude_from_net_worth').notNull().default(0),
+  createdAt: text('created_at').default(sql`(datetime('now'))`)
+}, (table) => [
+  index('idx_accounts_user').on(table.userId),
+  index('idx_accounts_user_type').on(table.userId, table.type)
+]);
+
+export const transfersTable = sqliteTable('account_transfers', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  fromAccountId: text('from_account_id').notNull().references(() => accountsTable.id, { onDelete: 'cascade' }),
+  toAccountId: text('to_account_id').notNull().references(() => accountsTable.id, { onDelete: 'cascade' }),
+  amount: real('amount').notNull(),
+  destinationAmount: real('destination_amount').notNull(),
+  exchangeRate: real('exchange_rate').default(1.0),
+  feeAmount: real('fee_amount').default(0),
+  date: text('date').notNull(),
+  notes: text('notes'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`)
+}, (table) => [
+  index('idx_transfers_user').on(table.userId),
+  index('idx_transfers_from').on(table.fromAccountId),
+  index('idx_transfers_to').on(table.toAccountId)
+]);
+
 export const budgetsTable = sqliteTable('budgets', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
@@ -22,18 +60,23 @@ export const budgetsTable = sqliteTable('budgets', {
 export const financeTable = sqliteTable('finance', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  accountId: text('account_id').references(() => accountsTable.id, { onDelete: 'set null' }),
+  transferId: text('transfer_id').references(() => transfersTable.id, { onDelete: 'cascade' }),
   type: text('type').notNull(), // 'income' | 'expense'
   amount: real('amount').notNull(),
   category: text('category').notNull(),
   description: text('description'),
+  payee: text('payee'),
   date: text('date').default(sql`(date('now'))`),
   isSpecial: integer('is_special').default(0), // 1 = capital/high-ticket ledger
   budgetId: text('budget_id').references(() => budgetsTable.id, { onDelete: 'set null' }),
   taskId: text('task_id'),
+  receiptUrl: text('receipt_url'),
   createdAt: text('created_at').default(sql`(datetime('now'))`)
 }, (table) => [
   index('idx_finance_user_date').on(table.userId, table.date),
-  index('idx_finance_user_special').on(table.userId, table.isSpecial)
+  index('idx_finance_user_special').on(table.userId, table.isSpecial),
+  index('idx_finance_user_account').on(table.userId, table.accountId)
 ]);
 
 export const savingsTransactionsTable = sqliteTable('savings_transactions', {
@@ -77,6 +120,8 @@ export const loansTable = sqliteTable('loans', {
   createdAt: text('created_at').default(sql`(datetime('now'))`)
 });
 
+export type FinancialAccount = typeof accountsTable.$inferSelect;
+export type AccountTransfer = typeof transfersTable.$inferSelect;
 export type FinanceEntry = typeof financeTable.$inferSelect;
 export type Budget = typeof budgetsTable.$inferSelect;
 export type SavingsTransaction = typeof savingsTransactionsTable.$inferSelect;

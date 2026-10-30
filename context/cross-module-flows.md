@@ -4,6 +4,7 @@ This document maps all state flows connecting the 8 Core Verticals:
 
 1. **Planner ↔ Finance**:
    - Marking a task with an expected cost as `done` can automatically log an expense in the Cash Ledger.
+   - Users can select which Financial Account (e.g., bKash, Bank, PayPal, or Cash) the task expense is drawn from.
    - Budgets link directly to planned projects and milestones.
 
 2. **Planner ↔ Mind**:
@@ -21,9 +22,10 @@ This document maps all state flows connecting the 8 Core Verticals:
    - Screen time graphs display total daily focus minutes versus blocked distractions.
 
 6. **Assets ↔ Finance ↔ Vault**:
-   - Purchasing equipment logs a cash ledger entry.
+   - Purchasing equipment logs a cash ledger entry tied to a specific financial account (e.g. Bank Account or Credit Card).
    - Warranties generate countdown alerts 30 days and 7 days prior to expiry.
    - Encrypted document vault stores receipts and certificates with client-side AES-GCM-256.
 
 7. **Network ↔ Planner**:
    - Commitment reminders with friends, family, or mentors automatically inject into the daily schedule.
+   - Debts / Loans in Finance link to Network contacts for automated repayment reminders.

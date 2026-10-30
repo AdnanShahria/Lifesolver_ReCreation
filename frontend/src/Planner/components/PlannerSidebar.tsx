@@ -202,8 +202,8 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group select-none ${
           isSelected
             ? isDark
-              ? 'bg-zinc-800 text-white shadow-xs border border-white/[0.08] font-semibold'
-              : 'bg-white text-zinc-950 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/[0.06] font-semibold'
+              ? 'bg-white/[0.12] text-white shadow-xs border border-white/[0.14] font-semibold'
+              : 'bg-white/95 text-zinc-950 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-white/90 font-semibold'
             : isDark
             ? 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
             : 'text-zinc-600 hover:text-zinc-950 hover:bg-black/[0.04]'
@@ -308,10 +308,8 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
       )}
 
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-72 shrink-0 border-r flex flex-col transition-transform duration-300 font-sans ${
-          isDark
-            ? 'bg-[#0c0d12] border-white/[0.08] text-zinc-100'
-            : 'bg-[#f5f5f7] border-black/[0.06] text-zinc-900'
+        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-72 shrink-0 flex flex-col transition-transform duration-300 font-sans apple-sidebar-material ${
+          isDark ? 'text-zinc-100' : 'text-zinc-900'
         } ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
@@ -335,11 +333,7 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
         {/* Scrollable Container */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-6 custom-scrollbar">
           {/* ── MiniCalendar (Apple Calendar Style) ── */}
-          <div className={`rounded-2xl p-3.5 border shadow-xs ${
-            isDark
-              ? 'bg-[#12131a] border-white/[0.08]'
-              : 'bg-white border-black/[0.06]'
-          }`}>
+          <div className="rounded-2xl p-3.5 apple-card-glass">
             <div className="flex items-center justify-between mb-2.5 px-1">
               <span className="text-xs font-bold text-zinc-900 dark:text-white tracking-tight">
                 {monthName}
@@ -396,12 +390,12 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
                     }}
                     className={`relative h-7 rounded-xl text-xs font-medium flex flex-col items-center justify-center transition-all ${
                       isSelected
-                        ? 'bg-violet-600 text-white font-bold shadow-sm shadow-violet-600/30'
+                        ? 'bg-violet-600 text-white font-bold shadow-md shadow-violet-600/30'
                         : isToday
-                        ? 'bg-violet-50 text-violet-700 font-bold border border-violet-200'
+                        ? 'bg-violet-500/15 text-violet-700 dark:text-violet-300 font-bold border border-violet-500/30'
                         : cell.isCurrentMonth
-                        ? 'text-[#1d1d1f] hover:bg-[#f5f5f7]'
-                        : 'text-[#c7c7cc] hover:text-[#8d8d93]'
+                        ? isDark ? 'text-zinc-200 hover:bg-white/[0.06]' : 'text-[#1d1d1f] hover:bg-black/[0.04]'
+                        : 'text-[#c7c7cc] dark:text-zinc-600 hover:text-[#8d8d93]'
                     }`}
                   >
                     <span>{cell.dayNum}</span>

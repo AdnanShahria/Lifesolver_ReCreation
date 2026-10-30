@@ -87,7 +87,7 @@ export const AuthPage: React.FC = () => {
           <img
             src={logoImg}
             alt="LifeSolver"
-            className="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-[#0071e3]/20 ring-1 ring-black/[0.08] dark:ring-white/[0.12]"
+            className="w-10 h-10 rounded-2xl object-cover shadow-lg shadow-cyan-500/25 ring-1 ring-cyan-500/40"
           />
           <div className="flex items-center space-x-2">
             <span className={`font-bold text-lg tracking-tight font-apple-display group-hover:text-[#0071e3] transition-colors ${
@@ -542,9 +542,9 @@ export const AuthPage: React.FC = () => {
         isDark ? 'border-zinc-800/80 text-zinc-500' : 'border-zinc-200 text-zinc-500'
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <img src={logoImg} alt="LifeSolver" className="w-4 h-4 rounded-md object-cover" />
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <div className="flex items-center space-x-2.5">
+            <img src={logoImg} alt="LifeSolver" className="w-5 h-5 rounded-lg object-cover ring-1 ring-cyan-500/30 shadow-xs" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Cloudflare Edge Enclave Active · Zero-Knowledge Cryptography</span>
           </div>
 
@@ -557,7 +557,7 @@ export const AuthPage: React.FC = () => {
               SysAdmin Cockpit
             </Link>
             <span>&bull;</span>
-            <span>&copy; 2026 LifeSolver Inc.</span>
+            <span>&copy; {new Date().getFullYear()} LifeSolver. All rights reserved by Orbit SaaS.</span>
           </div>
         </div>
       </footer>

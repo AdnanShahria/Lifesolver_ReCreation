@@ -249,22 +249,22 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       {/* ── Apple Frosted Backdrop ── */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/30 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/25 backdrop-blur-xl saturate-150 transition-opacity animate-in fade-in duration-200"
       />
 
-      {/* ── Apple Sheet Modal Card ── */}
+      {/* ── Apple Sheet Modal Card (Apple Modal Glass) ── */}
       <div
-        className="relative w-full max-w-2xl bg-white/95 backdrop-blur-2xl border border-black/[0.08] rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] flex flex-col max-h-[90vh] overflow-hidden transition-all animate-in zoom-in-95 duration-200 z-10 font-sans"
+        className="relative w-full max-w-2xl apple-modal-glass rounded-3xl flex flex-col max-h-[90vh] overflow-hidden transition-all animate-in zoom-in-95 duration-200 z-10 font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.06] bg-white/80 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-white/[0.03] shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-600">
               <Plus className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#1d1d1f] tracking-tight">Create New Task</h2>
+              <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-zinc-100 tracking-tight">Create New Task</h2>
               <p className="text-[11px] text-[#8d8d93]">Apple HIG fast-capture &amp; smart scheduling</p>
             </div>
           </div>
@@ -275,7 +275,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               <select
                 value={listId}
                 onChange={(e) => setListId(e.target.value)}
-                className="appearance-none pl-7 pr-7 py-1.5 rounded-xl bg-[#f5f5f7] border border-black/[0.06] text-xs font-semibold text-[#1d1d1f] hover:bg-[#e8e8ed] transition-colors focus:outline-none cursor-pointer"
+                className="appearance-none pl-7 pr-7 py-1.5 rounded-xl bg-white/70 dark:bg-zinc-800 border border-black/[0.06] dark:border-white/[0.08] text-xs font-semibold text-[#1d1d1f] dark:text-zinc-100 hover:bg-white transition-colors focus:outline-none cursor-pointer shadow-xs"
               >
                 <option value="">Inbox (Default)</option>
                 {lists.map((l) => (
@@ -291,7 +291,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-full text-[#8d8d93] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
+              className="p-1.5 rounded-full text-[#8d8d93] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -299,7 +299,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar bg-white/70">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar bg-transparent">
           {/* Title Input */}
           <div className="space-y-1.5">
             <input
@@ -628,10 +628,10 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         </div>
 
         {/* ── Bottom Action Footer ── */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-black/[0.06] bg-[#f5f5f7]/90 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-black/[0.06] dark:border-white/[0.08] bg-white/40 dark:bg-white/[0.02] shrink-0">
           <div className="hidden sm:flex items-center space-x-2 text-[11px] text-[#8d8d93]">
             <span className="flex items-center space-x-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-black/[0.08] text-[10px] font-mono shadow-sm">
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-black/[0.08] dark:border-white/[0.08] text-[10px] font-mono shadow-sm">
                 ⌘/Ctrl + ↵
               </kbd>
               <span>to save</span>
@@ -642,7 +642,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6e6e73] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
             >
               Cancel
             </button>
@@ -651,7 +651,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               type="button"
               disabled={!title.trim() || createTaskMutation.isPending}
               onClick={handleSubmit}
-              className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-xs font-semibold text-white shadow-md shadow-violet-600/20 active:scale-95 transition-all flex items-center space-x-1.5"
+              className="px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(124,58,237,0.35),inset_0_1px_1px_rgba(255,255,255,0.35)] active:scale-95 transition-all flex items-center space-x-1.5"
             >
               <span>{createTaskMutation.isPending ? 'Creating...' : 'Create Task'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

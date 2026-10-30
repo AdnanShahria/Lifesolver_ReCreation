@@ -41,10 +41,8 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
   const [manualListId, setManualListId] = useState<string | null>(defaultListId || null);
   const [manualTags, setManualTags] = useState<string[]>([]);
 
-  // Dropdown states
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showPriorityPicker, setShowPriorityPicker] = useState(false);
-  const [showListPicker, setShowListPicker] = useState(false);
+  // Dropdown state - only one picker can be open at a time to prevent overlapping
+  const [openPicker, setOpenPicker] = useState<'priority' | 'date' | 'list' | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,9 +51,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setShowDatePicker(false);
-        setShowPriorityPicker(false);
-        setShowListPicker(false);
+        setOpenPicker(null);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -208,10 +204,10 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full rounded-2xl transition-all duration-200 font-sans ${
+      className={`relative w-full rounded-2xl transition-all duration-200 font-sans apple-card-glass ${
         isFocused
-          ? 'bg-white border-2 border-violet-500 shadow-[0_8px_30px_rgba(139,92,246,0.12)] ring-4 ring-violet-500/10'
-          : 'bg-white border border-black/[0.08] shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:border-black/[0.14]'
+          ? 'ring-2 ring-violet-500/30 border-violet-500/40 shadow-[0_12px_36px_rgba(139,92,246,0.12)]'
+          : 'hover:border-black/[0.12] dark:hover:border-white/[0.18]'
       }`}
     >
       <form onSubmit={handleFormSubmit} className="p-3 sm:p-3.5">
@@ -229,7 +225,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
-            className="flex-1 bg-transparent text-sm text-[#1d1d1f] placeholder:text-[#8d8d93] focus:outline-none font-medium"
+            className="flex-1 bg-transparent text-sm text-[#1d1d1f] dark:text-zinc-100 placeholder:text-[#8d8d93] focus:outline-none font-medium"
           />
 
           {onOpenFullModal && (
@@ -237,7 +233,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
               type="button"
               title="Open full task creator sheet"
               onClick={onOpenFullModal}
-              className="p-1.5 rounded-xl text-[#8d8d93] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
+              className="p-1.5 rounded-xl text-[#8d8d93] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
             >
               <SlidersHorizontal className="w-4 h-4" />
             </button>
@@ -246,7 +242,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
           <button
             type="submit"
             disabled={!rawText.trim() || createTaskMutation.isPending}
-            className="px-4 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold text-white shadow-sm flex items-center space-x-1.5 transition-all active:scale-95"
+            className="px-4 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold text-white shadow-[0_2px_8px_rgba(124,58,237,0.3),inset_0_1px_0.5px_rgba(255,255,255,0.35)] flex items-center space-x-1.5 transition-all active:scale-95"
           >
             <span>Add</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -261,7 +257,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowPriorityPicker(!showPriorityPicker)}
+                onClick={() => setOpenPicker(openPicker === 'priority' ? null : 'priority')}
                 className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg border text-[11px] font-semibold transition-all shadow-sm ${priorityColor}`}
               >
                 <Flag className="w-3 h-3" />
@@ -269,17 +265,17 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
               </button>
 
               {/* Priority Dropdown */}
-              {showPriorityPicker && (
-                <div className="absolute top-8 left-0 z-50 w-36 p-1 rounded-2xl bg-white border border-black/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.12)] space-y-0.5 animate-in fade-in">
+              {openPicker === 'priority' && (
+                <div className="absolute top-full mt-2 left-0 z-50 w-36 p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-black/[0.08] dark:border-white/[0.12] shadow-[0_12px_36px_rgba(0,0,0,0.15)] space-y-0.5 animate-in fade-in">
                   {(['urgent', 'high', 'medium', 'low'] as PriorityLevel[]).map((p) => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => {
                         setManualPriority(p);
-                        setShowPriorityPicker(false);
+                        setOpenPicker(null);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] flex items-center space-x-2 capitalize transition-colors"
+                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#1d1d1f] dark:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06] flex items-center space-x-2 capitalize transition-colors"
                     >
                       <Flag
                         className={`w-3.5 h-3.5 ${
@@ -303,7 +299,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowDatePicker(!showDatePicker)}
+                onClick={() => setOpenPicker(openPicker === 'date' ? null : 'date')}
                 className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                   effectiveDueDate
                     ? 'bg-violet-50 text-violet-700 border-violet-200 font-semibold shadow-sm'
@@ -332,15 +328,15 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
               </button>
 
               {/* Date Dropdown */}
-              {showDatePicker && (
-                <div className="absolute top-8 left-0 z-50 w-40 p-1 rounded-2xl bg-white border border-black/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.12)] space-y-0.5 animate-in fade-in">
+              {openPicker === 'date' && (
+                <div className="absolute top-full mt-2 left-0 z-50 w-40 p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-black/[0.08] dark:border-white/[0.12] shadow-[0_12px_36px_rgba(0,0,0,0.15)] space-y-0.5 animate-in fade-in">
                   <button
                     type="button"
                     onClick={() => {
                       setManualDueDate(getIsoDate(0));
-                      setShowDatePicker(false);
+                      setOpenPicker(null);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-[#1d1d1f] hover:bg-[#f5f5f7] flex items-center space-x-2"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06] flex items-center space-x-2"
                   >
                     <Clock className="w-3.5 h-3.5 text-violet-600" />
                     <span>Today</span>
@@ -349,9 +345,9 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
                     type="button"
                     onClick={() => {
                       setManualDueDate(getIsoDate(1));
-                      setShowDatePicker(false);
+                      setOpenPicker(null);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-[#1d1d1f] hover:bg-[#f5f5f7] flex items-center space-x-2"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06] flex items-center space-x-2"
                   >
                     <Calendar className="w-3.5 h-3.5 text-cyan-600" />
                     <span>Tomorrow</span>
@@ -360,9 +356,9 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
                     type="button"
                     onClick={() => {
                       setManualDueDate(getIsoDate(7));
-                      setShowDatePicker(false);
+                      setOpenPicker(null);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-[#1d1d1f] hover:bg-[#f5f5f7] flex items-center space-x-2"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06] flex items-center space-x-2"
                   >
                     <Calendar className="w-3.5 h-3.5 text-indigo-600" />
                     <span>Next Week</span>
@@ -371,9 +367,9 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
                     type="button"
                     onClick={() => {
                       setManualDueDate(null);
-                      setShowDatePicker(false);
+                      setOpenPicker(null);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#8d8d93] hover:text-red-500 hover:bg-red-50 flex items-center space-x-2"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#8d8d93] dark:text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center space-x-2"
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>No Date</span>
@@ -386,7 +382,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowListPicker(!showListPicker)}
+                onClick={() => setOpenPicker(openPicker === 'list' ? null : 'list')}
                 className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                   selectedList
                     ? 'bg-white text-[#1d1d1f] border-black/[0.08] shadow-sm font-semibold'
@@ -416,15 +412,15 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
               </button>
 
               {/* List Dropdown */}
-              {showListPicker && (
-                <div className="absolute top-8 left-0 z-50 w-48 max-h-56 overflow-y-auto p-1 rounded-2xl bg-white border border-black/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.12)] space-y-0.5 animate-in fade-in">
+              {openPicker === 'list' && (
+                <div className="absolute top-full mt-2 left-0 z-50 w-48 max-h-56 overflow-y-auto p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-black/[0.08] dark:border-white/[0.12] shadow-[0_12px_36px_rgba(0,0,0,0.15)] space-y-0.5 animate-in fade-in">
                   <button
                     type="button"
                     onClick={() => {
                       setManualListId(null);
-                      setShowListPicker(false);
+                      setOpenPicker(null);
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-[#f5f5f7]"
+                    className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#6e6e73] dark:text-zinc-400 hover:text-[#1d1d1f] dark:hover:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06]"
                   >
                     No List (Inbox)
                   </button>
@@ -434,9 +430,9 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
                       type="button"
                       onClick={() => {
                         setManualListId(list.id);
-                        setShowListPicker(false);
+                        setOpenPicker(null);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#1d1d1f] hover:bg-[#f5f5f7] flex items-center space-x-2"
+                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-[#1d1d1f] dark:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06] flex items-center space-x-2"
                     >
                       <span
                         className="w-2 h-2 rounded-full"

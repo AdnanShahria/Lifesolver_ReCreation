@@ -20,13 +20,16 @@ import {
   useSavings, 
   useBills, 
   useLoans, 
-  useFinanceAnalytics 
+  useFinanceAnalytics,
+  useAccounts,
+  DEFAULT_ACCOUNTS
 } from './hooks/useFinance';
 
-import type { SavingsPot, Loan } from './types';
+import type { SavingsPot, Loan, FinancialAccount } from './types';
 
 import { Sidebar } from '../_core/Sidebar';
 import { FinanceOverviewDemo } from './components/FinanceOverviewDemo';
+import { AccountsCarousel } from './components/AccountsCarousel';
 import { SummaryCards } from './components/SummaryCards';
 import { LedgerTable } from './components/LedgerTable';
 import { BudgetsPanel } from './components/BudgetsPanel';
@@ -36,6 +39,8 @@ import { LoansTracker } from './components/LoansTracker';
 import { FinanceAnalytics } from './components/FinanceAnalytics';
 
 import { TransactionModal } from './components/modals/TransactionModal';
+import { AccountModal } from './components/modals/AccountModal';
+import { TransferModal } from './components/modals/TransferModal';
 import { BudgetModal } from './components/modals/BudgetModal';
 import { SavingsModal } from './components/modals/SavingsModal';
 import { SavingsActionModal } from './components/modals/SavingsActionModal';
@@ -62,9 +67,15 @@ export const FinancePage: React.FC = () => {
   const [currency, setCurrency] = useState<'BDT' | 'USD' | 'EUR' | 'INR'>('BDT');
   const [ledgerSubMode, setLedgerSubMode] = useState<'regular' | 'special'>('regular');
 
+  // Financial Accounts
+  const { data: accountsData, isLoading: isAccountsLoading } = useAccounts();
+  const accounts = accountsData?.accounts ?? DEFAULT_ACCOUNTS;
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+
   // Queries
   const { data: ledgerData, isLoading: isLedgerLoading } = useLedger({
-    isSpecial: ledgerSubMode === 'regular' ? 0 : 1
+    isSpecial: ledgerSubMode === 'regular' ? 0 : 1,
+    accountId: selectedAccountId || undefined
   });
   const { data: budgetsData, isLoading: isBudgetsLoading } = useBudgets();
   const { data: savingsData, isLoading: isSavingsLoading } = useSavings();
@@ -73,6 +84,11 @@ export const FinancePage: React.FC = () => {
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useFinanceAnalytics();
 
   // Modal states
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [accountToEdit, setAccountToEdit] = useState<FinancialAccount | null>(null);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [transferSourceAccountId, setTransferSourceAccountId] = useState<string | null>(null);
+
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionModalType, setTransactionModalType] = useState<'income' | 'expense'>('expense');
   const [transactionModalIsSpecial, setTransactionModalIsSpecial] = useState(0);
@@ -89,6 +105,21 @@ export const FinancePage: React.FC = () => {
 
   const [repaymentModalOpen, setRepaymentModalOpen] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+
+  const handleAddNewAccount = () => {
+    setAccountToEdit(null);
+    setAccountModalOpen(true);
+  };
+
+  const handleEditAccount = (acc: FinancialAccount) => {
+    setAccountToEdit(acc);
+    setAccountModalOpen(true);
+  };
+
+  const handleOpenTransfer = (sourceAcc?: FinancialAccount) => {
+    setTransferSourceAccountId(sourceAcc ? sourceAcc.id : null);
+    setTransferModalOpen(true);
+  };
 
   const handleOpenTransaction = (type: 'income' | 'expense', isSpecial = 0) => {
     setTransactionModalType(type);
@@ -278,6 +309,17 @@ export const FinancePage: React.FC = () => {
               <span>Analytics & MoM</span>
             </button>
           </div>
+
+          {/* ── Financial Accounts & Wallets Carousel ── */}
+          <AccountsCarousel
+            accounts={accounts}
+            selectedAccountId={selectedAccountId}
+            onSelectAccount={setSelectedAccountId}
+            onAddNewAccount={handleAddNewAccount}
+            onEditAccount={handleEditAccount}
+            onTransfer={handleOpenTransfer}
+            isLoading={isAccountsLoading}
+          />
 
           {/* ── Active Tab Viewport ── */}
           <div className="pt-1">
@@ -483,6 +525,25 @@ export const FinancePage: React.FC = () => {
       </div>
 
       {/* ── Action Modals ── */}
+      <AccountModal
+        isOpen={accountModalOpen}
+        onClose={() => {
+          setAccountModalOpen(false);
+          setAccountToEdit(null);
+        }}
+        accountToEdit={accountToEdit}
+      />
+
+      <TransferModal
+        isOpen={transferModalOpen}
+        onClose={() => {
+          setTransferModalOpen(false);
+          setTransferSourceAccountId(null);
+        }}
+        accounts={accounts}
+        defaultSourceAccountId={transferSourceAccountId}
+      />
+
       <TransactionModal
         isOpen={transactionModalOpen}
         onClose={() => setTransactionModalOpen(false)}
