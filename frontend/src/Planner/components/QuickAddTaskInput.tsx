@@ -70,7 +70,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
 
   // ── Real-time NLP Parser ─────────────────────────────────────────
   const parsed = useMemo(() => {
-    let text = rawText;
+    const text = rawText;
     let priority: PriorityLevel | undefined;
     let dueDate: string | undefined;
     let listId: string | undefined;

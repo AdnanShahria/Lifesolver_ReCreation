@@ -5,8 +5,14 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".output/**"]
     },
+    "@lifesolver/backend#build": {
+      "cache": true,
+      "outputs": []
+    },
     "lint": {},
-    "check": {},
+    "check": {
+      "cache": true
+    },
     "dev": {
       "cache": false,
       "persistent": true

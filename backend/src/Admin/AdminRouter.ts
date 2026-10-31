@@ -76,9 +76,9 @@ adminRouter.get('/metrics', async (c) => {
       health: {
         databaseConnected: true,
         dbLatencyMs,
-        kvStatus: !!c.env.KV ? 'bound' : 'virtualized',
-        r2Status: !!c.env.R2_BUCKET ? 'bound' : 'virtualized',
-        aiStatus: !!c.env.AI ? 'active' : 'fallback-groq'
+        kvStatus: c.env.KV ? 'bound' : 'virtualized',
+        r2Status: c.env.R2_BUCKET ? 'bound' : 'virtualized',
+        aiStatus: c.env.AI ? 'active' : 'fallback-groq'
       },
       kpis: {
         totalUsers,

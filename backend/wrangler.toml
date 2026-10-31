@@ -10,7 +10,9 @@ DB_REPLICA = "none"
 AI_PROVIDER = "groq"
 AI_FALLBACK = "workers-ai"
 IMAGE_PROVIDER = "r2"
-EMAIL_PROVIDER = "resend"
+EMAIL_PROVIDER = "gmail"
+GMAIL_USER = "adnanshahria2019@gmail.com"
+GMAIL_FROM_NAME = "LifeSolver"
 VECTOR_PROVIDER = "vectorize"
 PAYMENT_PROVIDER = "stripe"
 JWT_SECRET = "dev_secret_change_in_production_lifesolver_jwt"
@@ -25,7 +27,7 @@ database_id = "e8e10bd0-7d62-4f4d-a775-5d488b21a0b8"
 # Cloudflare Workers KV Cache
 [[kv_namespaces]]
 binding = "KV"
-id = "local-kv-binding"
+id = "57275317c39940e3b23366f6d090d47b"
 
 # Cloudflare R2 Object Storage
 [[r2_buckets]]

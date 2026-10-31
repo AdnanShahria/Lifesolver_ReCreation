@@ -1,34 +1,68 @@
-# Dependencies
+# ==============================================================================
+# LifeSolver Monorepo — Production .gitignore
+# ==============================================================================
+
+# ── Dependencies & Package Managers ──────────────────────────────────────────
 node_modules/
 .pnpm-store/
+.npm/
+.yarn/
 
-# Build outputs
+# ── Build Outputs & Compilers ────────────────────────────────────────────────
 dist/
 build/
+out/
 .output/
 .turbo/
 *.tsbuildinfo
+.rollup.cache/
 
-# Cloudflare Wrangler & Pages
+# ── Cloudflare Workers, Pages & Local Emulators ──────────────────────────────
 .wrangler/
 .mf/
+worker/dist/
 
-# Secrets and Local Environment
+# ── Secrets, Credentials & Local Environment Files ───────────────────────────
+# Block all real env and secrets by default
 .env
+.env.*
 .env.local
 .env.*.local
 .dev.vars
+.dev.vars.*
 *.pem
+*.key
+*.crt
+*.cert
+*.pfx
+*.p12
+*.kdbx
+credentials.json
+service-account*.json
 
-# IDE & Editor
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
+# Explicitly whitelist example / template configuration files
+!.env.example
+!.env.*.example
+!.dev.vars.example
 
-# Logs
+# ── Local SQLite & Databases ─────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+dev.db
+local.db
+
+# ── Testing, Coverage & Reports ──────────────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+
+# ── Logs & Debugging ─────────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
@@ -36,14 +70,26 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Database & SQLite Local
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
-*.db-wal
+# ── Editor & Operating System Artifacts ──────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
 
-# Flutter & Dart
+# IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ── Flutter & Mobile Native ──────────────────────────────────────────────────
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -51,3 +97,7 @@ pnpm-debug.log*
 *.ephemeral/
 ios/Flutter/Generated.xcconfig
 android/local.properties
+android/.gradle
+android/captures/
+ios/Pods/
+ios/.symlinks/

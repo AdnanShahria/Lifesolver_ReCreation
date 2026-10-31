@@ -12,7 +12,7 @@ CLOUDFLARE_D1_DATABASE_ID=
 AI_PROVIDER=groq
 AI_FALLBACK=workers-ai
 IMAGE_PROVIDER=r2
-EMAIL_PROVIDER=resend
+EMAIL_PROVIDER=gmail
 VECTOR_PROVIDER=vectorize
 PAYMENT_PROVIDER=stripe
 
@@ -26,7 +26,10 @@ HUGGINGFACE_API_KEY=hf_your_huggingface_api_key_here
 R2_PUBLIC_URL=http://localhost:8788/cdn
 IMGBB_API_KEY=
 
-# Email Credentials
+# Email Credentials (Gmail SMTP Primary)
+GMAIL_USER=your_email@gmail.com
+GMAIL_APP_PASSWORD=your_16_char_app_password
+GMAIL_FROM_NAME=LifeSolver
 RESEND_API_KEY=re_your_resend_api_key_here
 SENDPULSE_API_USER=
 SENDPULSE_API_KEY=

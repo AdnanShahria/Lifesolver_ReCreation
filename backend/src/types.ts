@@ -29,9 +29,16 @@ export interface Env {
   R2_PUBLIC_URL?: string;
   IMGBB_API_KEY?: string;
   RESEND_API_KEY?: string;
+  GMAIL_USER?: string;
+  GMAIL_APP_PASSWORD?: string;
+  GMAIL_FROM_NAME?: string;
+  SENDPULSE_API_USER?: string;
+  SENDPULSE_API_KEY?: string;
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   FRONTEND_URL?: string;
+  TURSO_URL?: string;
+  TURSO_AUTH_TOKEN?: string;
 }
 
 export interface UserPlan {

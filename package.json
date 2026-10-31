@@ -2,6 +2,7 @@
   "name": "lifesolver-monorepo",
   "version": "3.2.0",
   "private": true,
+  "type": "module",
   "description": "LifeSolver — Omniscient Personal Life OS Monorepo",
   "workspaces": [
     "frontend",
@@ -21,7 +22,8 @@
     "build:backend": "pnpm --filter @lifesolver/backend build",
     "build:extension": "pnpm --filter @lifesolver/extension build",
     "check": "turbo run check",
-    "lint": "turbo run lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "db:generate": "pnpm --filter @lifesolver/database generate",
     "db:push": "pnpm --filter @lifesolver/database push",
     "db:seed": "pnpm --filter @lifesolver/database seed",
@@ -29,9 +31,12 @@
     "deploy": "node scripts/deploy.js"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "concurrently": "^9.1.2",
+    "eslint": "^10.14.0",
     "turbo": "^2.4.4",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.72.1"
   },
   "packageManager": "pnpm@10.33.0"
 }

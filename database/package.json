@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "check": "tsc --noEmit",
     "generate": "drizzle-kit generate",
     "push": "drizzle-kit push",
     "seed": "tsx seeds/seed.ts",
