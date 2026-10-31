@@ -1,6 +1,9 @@
 # Admin Panel SSR Gateway (Redirect to Worker Runtime)
-/adm    https://lifesolver-api.orbitsaas2026.workers.dev/adm    302
-/adm/*  https://lifesolver-api.orbitsaas2026.workers.dev/adm/:splat  302
+/adm    https://lifesolver-recreation.orbitsaas2026.workers.dev/adm    302
+/adm/*  https://lifesolver-recreation.orbitsaas2026.workers.dev/adm/:splat  302
+
+# API Proxy (Route /api calls from Pages to Worker without CORS issues)
+/api/*  https://lifesolver-recreation.orbitsaas2026.workers.dev/api/:splat  200
 
 # LifeSolver Single Page Application SPA fallback
-/*    /index.html    200
+/*      /index.html    200
