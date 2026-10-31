@@ -6,9 +6,11 @@ ADMIN_SESSION_SECRET=dev_admin_cookie_session_secret_change_in_prod
 
 # Provider Selection
 DB_PRIMARY=d1
-DB_REPLICA=none
+DB_REPLICA=turso
 CLOUDFLARE_ACCOUNT_ID=
 CLOUDFLARE_D1_DATABASE_ID=
+TURSO_URL=libsql://your-turso-database.turso.io
+TURSO_AUTH_TOKEN=your_turso_jwt_auth_token
 AI_PROVIDER=groq
 AI_FALLBACK=workers-ai
 IMAGE_PROVIDER=r2

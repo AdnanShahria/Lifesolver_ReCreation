@@ -6,7 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 ENVIRONMENT = "development"
 DB_PRIMARY = "d1"
-DB_REPLICA = "none"
+DB_REPLICA = "turso"
+TURSO_URL = "libsql://lifesolver-recreation-adnanshahria2006.aws-ap-south-1.turso.io"
 AI_PROVIDER = "groq"
 AI_FALLBACK = "workers-ai"
 IMAGE_PROVIDER = "r2"
@@ -15,8 +16,8 @@ GMAIL_USER = "adnanshahria2019@gmail.com"
 GMAIL_FROM_NAME = "LifeSolver"
 VECTOR_PROVIDER = "vectorize"
 PAYMENT_PROVIDER = "stripe"
-JWT_SECRET = "dev_secret_change_in_production_lifesolver_jwt"
-ADMIN_SESSION_SECRET = "dev_admin_cookie_secret_change_in_prod"
+JWT_SECRET = "5f08a14af3f749be0682d562b88e690457eaa8b7c105798ffff6cc61d1a2d3b2"
+ADMIN_SESSION_SECRET = "9635616a71afc3a2b694d004a8f8f2b8602d6346581263a386fefacb46408d0e"
 
 # Cloudflare D1 Relational SQLite Database
 [[d1_databases]]

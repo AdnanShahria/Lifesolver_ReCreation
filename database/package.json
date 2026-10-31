@@ -16,6 +16,7 @@
     "check": "tsc --noEmit",
     "generate": "drizzle-kit generate",
     "push": "drizzle-kit push",
+    "push:turso": "drizzle-kit push --config=drizzle.turso.config.ts",
     "seed": "tsx seeds/seed.ts",
     "studio": "drizzle-kit studio"
   },

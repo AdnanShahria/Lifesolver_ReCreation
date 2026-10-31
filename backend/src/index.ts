@@ -37,6 +37,7 @@ app.get('/api/system/probe', (c) => {
     cloudflareEdge: true,
     bindings: {
       db: !!c.env.DB,
+      turso: !!c.env.TURSO_URL,
       kv: !!c.env.KV,
       r2: !!c.env.R2_BUCKET,
       ai: !!c.env.AI,
