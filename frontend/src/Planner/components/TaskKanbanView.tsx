@@ -9,7 +9,10 @@ import {
   Tag,
   Flag,
   Wallet,
-  Play
+  Play,
+  Ban,
+  BellRing,
+  Sun
 } from 'lucide-react';
 import type { Task, TaskStatus, PriorityLevel } from '../types';
 import {
@@ -36,7 +39,8 @@ interface ColumnConfig {
 const COLUMNS: ColumnConfig[] = [
   { id: 'todo', title: 'To Do', dotColor: 'bg-slate-400' },
   { id: 'in_progress', title: 'In Progress', dotColor: 'bg-sky-500' },
-  { id: 'done', title: 'Done', dotColor: 'bg-emerald-500' }
+  { id: 'done', title: 'Done', dotColor: 'bg-emerald-500' },
+  { id: 'wont_do', title: "Won't Do", dotColor: 'bg-slate-500' }
 ];
 
 export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
@@ -74,6 +78,11 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
         return {
           border: 'border-l-violet-500',
           badge: 'text-violet-700 bg-violet-50 border-violet-200'
+        };
+      case 'none':
+        return {
+          border: 'border-l-gray-300 dark:border-l-zinc-700',
+          badge: 'text-gray-600 bg-gray-50 border-gray-200'
         };
       case 'low':
       default:
@@ -131,9 +140,12 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start font-sans">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 items-start font-sans">
       {COLUMNS.map((col) => {
         const columnTasks = tasks.filter((t) => {
+          const isWontDo = t.wontDo || t.status === 'wont_do';
+          if (col.id === 'wont_do') return isWontDo;
+          if (isWontDo) return false;
           if (col.id === 'done') return t.completed || t.status === 'done';
           if (col.id === 'in_progress') return !t.completed && t.status === 'in_progress';
           return !t.completed && (t.status === 'todo' || !t.status);
@@ -222,6 +234,7 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
             <div className="flex-1 space-y-2.5 overflow-y-auto">
               {columnTasks.map((task) => {
                 const isSelected = selectedTaskId === task.id;
+                const isWontDo = task.wontDo || task.status === 'wont_do';
                 const prioStyle = getPriorityStyle(task.priority);
                 const dateMeta = formatDueDateLabel(task.dueDate);
                 const completedSubtasks = (task.subtasks || []).filter((s) => s.completed).length;
@@ -236,6 +249,8 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
                     className={`group relative p-3.5 rounded-2xl border-l-4 cursor-grab active:cursor-grabbing transition-all select-none ${prioStyle.border} ${
                       isSelected
                         ? 'bg-violet-50/70 border-t border-r border-b border-violet-300 shadow-md ring-2 ring-violet-500/20'
+                        : isWontDo
+                        ? 'bg-slate-50/70 border-t border-r border-b border-black/[0.04] opacity-60 hover:opacity-90'
                         : task.completed
                         ? 'bg-white/60 border-t border-r border-b border-black/[0.04] opacity-70 hover:opacity-100'
                         : 'bg-white border-t border-r border-b border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)] hover:-translate-y-0.5'
@@ -247,11 +262,20 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleCompleteMutation.mutate(task.id);
+                          if (isWontDo) {
+                            updateTaskMutation.mutate({
+                              taskId: task.id,
+                              data: { status: 'todo', completed: false }
+                            });
+                          } else {
+                            toggleCompleteMutation.mutate(task.id);
+                          }
                         }}
                         className="mt-0.5 text-[#8d8d93] hover:text-violet-600 shrink-0 transition-colors"
                       >
-                        {task.completed ? (
+                        {isWontDo ? (
+                          <Ban className="w-4 h-4 text-slate-500" />
+                        ) : task.completed ? (
                           <CheckCircle2 className="w-4 h-4 text-violet-600 fill-violet-600/20" />
                         ) : (
                           <Circle className="w-4 h-4" />
@@ -261,7 +285,11 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
                       <div className="flex-1 min-w-0">
                         <h4
                           className={`text-xs font-semibold leading-snug line-clamp-2 ${
-                            task.completed ? 'line-through text-[#8d8d93]' : 'text-[#1d1d1f]'
+                            isWontDo
+                              ? 'line-through italic text-slate-400'
+                              : task.completed
+                              ? 'line-through text-[#8d8d93]'
+                              : 'text-[#1d1d1f]'
                           }`}
                         >
                           {task.title}
@@ -271,10 +299,37 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
 
                     {/* Metadata chips */}
                     <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2 border-t border-black/[0.04] text-[10px]">
+                      {/* Won't do badge */}
+                      {isWontDo && (
+                        <span className="px-1.5 py-0.5 rounded font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                          Won&apos;t Do
+                        </span>
+                      )}
+
+                      {/* Persistent Annoying Alert */}
+                      {task.annoyingAlert && (
+                        <span
+                          title="Persistent Annoying Alert"
+                          className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-200 animate-pulse"
+                        >
+                          <BellRing className="w-2.5 h-2.5 text-red-600" />
+                        </span>
+                      )}
+
+                      {/* All-day badge */}
+                      {task.isAllDay && (
+                        <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                          <Sun className="w-2.5 h-2.5 text-amber-600" />
+                          <span>All-day</span>
+                        </span>
+                      )}
+
                       {/* Priority */}
-                      <span className={`px-1.5 py-0.5 rounded font-bold uppercase border ${prioStyle.badge}`}>
-                        {task.priority}
-                      </span>
+                      {task.priority && task.priority !== 'none' && (
+                        <span className={`px-1.5 py-0.5 rounded font-bold uppercase border ${prioStyle.badge}`}>
+                          {task.priority}
+                        </span>
+                      )}
 
                       {/* Due date */}
                       {task.dueDate && (
@@ -322,7 +377,7 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
 
                     {/* Status quick mover bar */}
                     <div className="flex items-center justify-between mt-2 pt-1 text-[10px] text-[#8d8d93]">
-                      <div className="flex items-center space-x-1">
+                      <div className="flex items-center space-x-1 flex-wrap gap-y-1">
                         {col.id !== 'todo' && (
                           <button
                             type="button"
@@ -368,9 +423,24 @@ export const TaskKanbanView: React.FC<TaskKanbanViewProps> = ({
                             Done
                           </button>
                         )}
+                        {col.id !== 'wont_do' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateTaskMutation.mutate({
+                                taskId: task.id,
+                                data: { status: 'wont_do', completed: false }
+                              });
+                            }}
+                            className="px-1.5 py-0.5 rounded-md hover:bg-slate-100 hover:text-slate-800 font-medium"
+                          >
+                            Won&apos;t Do
+                          </button>
+                        )}
                       </div>
 
-                      {onStartFocus && !task.completed && (
+                      {onStartFocus && !task.completed && !isWontDo && (
                         <button
                           type="button"
                           title="Start Focus"

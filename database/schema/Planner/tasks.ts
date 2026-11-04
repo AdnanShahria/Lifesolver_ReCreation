@@ -51,11 +51,15 @@ export const tasksTable = sqliteTable('tasks', {
   parentTaskId: text('parent_task_id'),
   title: text('title').notNull(),
   description: text('description'),
-  status: text('status').default('todo').notNull(), // 'todo' | 'in_progress' | 'done'
-  priority: text('priority').default('medium').notNull(), // 'urgent' | 'high' | 'medium' | 'low'
+  status: text('status').default('todo').notNull(), // 'todo' | 'in_progress' | 'done' | 'wont_do' | 'archived'
+  priority: text('priority').default('medium').notNull(), // 'urgent' | 'high' | 'medium' | 'low' | 'none'
+  kind: text('kind').default('TEXT').notNull(), // 'TEXT' | 'CHECKLIST' | 'NOTE'
   dueDate: text('due_date'),
   startTime: text('start_time'),
   endTime: text('end_time'),
+  isAllDay: integer('is_all_day').default(0),
+  timeZone: text('time_zone'),
+  annoyingAlert: integer('annoying_alert').default(0), // Persistent alarm ringing until handled
   estimatedDuration: integer('estimated_duration'), // minutes
   actualDuration: integer('actual_duration'), // minutes
   recurrenceRule: text('recurrence_rule'),
@@ -90,6 +94,9 @@ export const taskSubtasksTable = sqliteTable('task_subtasks', {
   isCompleted: integer('is_completed').default(0),
   orderIndex: integer('order_index').default(0),
   dueDate: text('due_date'),
+  reminderTime: text('reminder_time'),
+  snoozeReminderTime: text('snooze_reminder_time'),
+  timeZone: text('time_zone'),
   createdAt: text('created_at').default(sql`(datetime('now'))`)
 }, (table) => [
   index('idx_subtasks_task').on(table.taskId)

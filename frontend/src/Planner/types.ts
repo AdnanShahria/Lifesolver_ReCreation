@@ -1,12 +1,14 @@
-export type PriorityLevel = 'urgent' | 'high' | 'medium' | 'low';
+export type PriorityLevel = 'urgent' | 'high' | 'medium' | 'low' | 'none';
 
 export type ViewMode = 'list' | 'kanban' | 'matrix';
 
-export type SmartView = 'inbox' | 'today' | 'tomorrow' | '7days' | 'matrix' | 'all';
+export type SmartView = 'inbox' | 'today' | 'tomorrow' | '7days' | 'matrix' | 'wont_do' | 'completed' | 'all';
 
-export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'wont_do' | 'archived';
 
-export type RecurrencePattern = 'none' | 'daily' | 'weekdays' | 'weekly' | 'monthly';
+export type TaskKind = 'TEXT' | 'CHECKLIST' | 'NOTE';
+
+export type RecurrencePattern = 'none' | 'daily' | 'weekdays' | 'weekly' | 'monthly' | 'custom';
 
 export interface Subtask {
   id: string;
@@ -14,6 +16,9 @@ export interface Subtask {
   title: string;
   completed: boolean;
   dueDate?: string;
+  reminderTime?: string;
+  snoozeReminderTime?: string;
+  timeZone?: string;
   createdAt: string;
 }
 
@@ -23,16 +28,27 @@ export interface Task {
   description?: string;
   notes?: string;
   completed: boolean;
+  wontDo?: boolean;
   priority: PriorityLevel;
+  kind?: TaskKind;
   dueDate?: string; // YYYY-MM-DD
   dueTime?: string; // HH:mm
+  isAllDay?: boolean;
+  timeZone?: string;
+  annoyingAlert?: boolean;
   listId?: string;
   tags: string[];
   isPinned?: boolean;
+  isFloating?: boolean;
+  progress?: number;
   status: TaskStatus;
   columnId?: string;
+  parentTaskId?: string;
   subtasks: Subtask[];
   recurrence?: RecurrencePattern;
+  recurrenceRule?: string;
+  repeatFrom?: 'due_date' | 'completion_date';
+  reminderTime?: string;
   expectedCost?: number;
   budgetCategory?: string;
   createdAt: string;
@@ -69,14 +85,21 @@ export interface PlannerStats {
   allCount: number;
   overdueCount: number;
   completedCount: number;
+  wontDoCount?: number;
 }
 
 export interface CreateTaskInput {
   title: string;
   priority?: PriorityLevel;
+  kind?: TaskKind;
   dueDate?: string;
   dueTime?: string;
+  isAllDay?: boolean;
+  timeZone?: string;
+  annoyingAlert?: boolean;
   listId?: string;
+  columnId?: string;
+  parentTaskId?: string;
   tags?: string[];
   notes?: string;
   status?: TaskStatus;
@@ -84,7 +107,18 @@ export interface CreateTaskInput {
   expectedCost?: number;
   budgetCategory?: string;
   recurrence?: RecurrencePattern;
-  subtasks?: Array<{ title: string; completed?: boolean; dueDate?: string } | string>;
+  recurrenceRule?: string;
+  repeatFrom?: 'due_date' | 'completion_date';
+  reminderTime?: string;
+  isPinned?: boolean;
+  subtasks?: Array<{
+    title: string;
+    completed?: boolean;
+    dueDate?: string;
+    reminderTime?: string;
+    snoozeReminderTime?: string;
+    timeZone?: string;
+  } | string>;
 }
 
 export interface BatchTaskActionInput {

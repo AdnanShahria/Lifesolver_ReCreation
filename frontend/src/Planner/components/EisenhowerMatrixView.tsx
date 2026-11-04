@@ -128,7 +128,9 @@ export const EisenhowerMatrixView: React.FC<EisenhowerMatrixViewProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start font-sans">
       {QUADRANTS.map((quad) => {
-        const quadTasks = tasks.filter((t) => !t.completed && t.priority === quad.priority);
+        const quadTasks = tasks.filter(
+          (t) => !t.completed && !t.wontDo && t.status !== 'wont_do' && t.priority === quad.priority
+        );
         const Icon = quad.icon;
         const isAdding = activeAddQuadrant === quad.id;
 

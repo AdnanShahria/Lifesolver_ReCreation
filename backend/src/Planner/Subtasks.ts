@@ -20,6 +20,9 @@ subtasksRoute.use('*', authMiddleware, subscriptionMiddleware);
 const createSubtaskSchema = z.object({
   title: z.string().trim().min(1, 'Subtask title is required'),
   dueDate: z.string().optional().nullable(),
+  reminderTime: z.string().optional().nullable(),
+  snoozeReminderTime: z.string().optional().nullable(),
+  timeZone: z.string().optional().nullable(),
   orderIndex: z.number().int().optional()
 });
 
@@ -27,6 +30,9 @@ const updateSubtaskSchema = z.object({
   title: z.string().trim().min(1).optional(),
   isCompleted: z.number().int().min(0).max(1).optional(),
   dueDate: z.string().optional().nullable(),
+  reminderTime: z.string().optional().nullable(),
+  snoozeReminderTime: z.string().optional().nullable(),
+  timeZone: z.string().optional().nullable(),
   orderIndex: z.number().int().optional()
 });
 
@@ -85,7 +91,10 @@ async function handleCreateSubtask(c: any, taskId: string) {
       title: parsed.data.title,
       isCompleted: 0,
       orderIndex,
-      dueDate: parsed.data.dueDate || null
+      dueDate: parsed.data.dueDate || null,
+      reminderTime: parsed.data.reminderTime || null,
+      snoozeReminderTime: parsed.data.snoozeReminderTime || null,
+      timeZone: parsed.data.timeZone || null
     };
 
     await db.insert(taskSubtasksTable).values(newSubtask);
@@ -137,6 +146,9 @@ async function handleUpdateSubtask(c: any, id: string) {
     if (parsed.data.title !== undefined) updates.title = parsed.data.title;
     if (parsed.data.isCompleted !== undefined) updates.isCompleted = parsed.data.isCompleted;
     if (parsed.data.dueDate !== undefined) updates.dueDate = parsed.data.dueDate;
+    if (parsed.data.reminderTime !== undefined) updates.reminderTime = parsed.data.reminderTime;
+    if (parsed.data.snoozeReminderTime !== undefined) updates.snoozeReminderTime = parsed.data.snoozeReminderTime;
+    if (parsed.data.timeZone !== undefined) updates.timeZone = parsed.data.timeZone;
     if (parsed.data.orderIndex !== undefined) updates.orderIndex = parsed.data.orderIndex;
 
     await db.update(taskSubtasksTable).set(updates).where(eq(taskSubtasksTable.id, id));

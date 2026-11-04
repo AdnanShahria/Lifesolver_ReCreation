@@ -14,7 +14,9 @@ import {
   AlignLeft,
   Trash2,
   CornerDownLeft,
-  ArrowRight
+  ArrowRight,
+  BellRing,
+  Sun
 } from 'lucide-react';
 import type { PriorityLevel, RecurrencePattern, TaskStatus, TaskList } from '../types';
 import { useTaskLists, useCreateTask, getIsoDate } from '../hooks/usePlanner';
@@ -62,6 +64,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [listId, setListId] = useState<string>(defaultListId || '');
   const [status, setStatus] = useState<TaskStatus>('todo');
   const [recurrence, setRecurrence] = useState<RecurrencePattern>('none');
+  const [repeatFrom, setRepeatFrom] = useState<'due_date' | 'completion_date'>('due_date');
+  const [isAllDay, setIsAllDay] = useState(false);
+  const [annoyingAlert, setAnnoyingAlert] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [expectedCost, setExpectedCost] = useState<number | ''>('');
@@ -84,6 +89,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       setPriority(defaultPriority);
       setDueDate(defaultDueDate || '');
       setDueTime('');
+      setIsAllDay(false);
+      setAnnoyingAlert(false);
+      setRepeatFrom('due_date');
       setListId(defaultListId || '');
       setStatus('todo');
       setRecurrence('none');
@@ -117,7 +125,24 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, title, priority, dueDate, dueTime, listId, tags, notes, status, recurrence, expectedCost, budgetCategory, subtasks]);
+  }, [
+    isOpen,
+    title,
+    priority,
+    dueDate,
+    dueTime,
+    isAllDay,
+    annoyingAlert,
+    repeatFrom,
+    listId,
+    tags,
+    notes,
+    status,
+    recurrence,
+    expectedCost,
+    budgetCategory,
+    subtasks
+  ]);
 
   // Real-time NLP parser from Title input
   const nlpPreview = useMemo(() => {
@@ -128,13 +153,14 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     const detectedTags: string[] = [];
 
     // Priority
-    const pMatch = title.match(/!(urgent|high|med(?:ium)?|low)\b/i);
+    const pMatch = title.match(/!(urgent|high|med(?:ium)?|low|none)\b/i);
     if (pMatch) {
       const p = pMatch[1].toLowerCase();
       if (p === 'urgent') detectedPriority = 'urgent';
       else if (p === 'high') detectedPriority = 'high';
       else if (p === 'med' || p === 'medium') detectedPriority = 'medium';
       else if (p === 'low') detectedPriority = 'low';
+      else if (p === 'none') detectedPriority = 'none';
     }
 
     // Tags
@@ -206,7 +232,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
     // Clean title string of NLP keywords
     effectiveTitle = effectiveTitle
-      .replace(/!(urgent|high|med(?:ium)?|low)\b/gi, '')
+      .replace(/!(urgent|high|med(?:ium)?|low|none)\b/gi, '')
       .replace(/#([a-zA-Z0-9_-]+)/g, '')
       .replace(/(?:^|\s)(?:@today\b|today\b)/gi, '')
       .replace(/(?:^|\s)(?:@tomorrow\b|tomorrow\b)/gi, '')
@@ -218,13 +244,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         title: effectiveTitle || title.trim(),
         priority: effectivePriority,
         dueDate: effectiveDueDate || undefined,
-        dueTime: dueTime || undefined,
+        dueTime: isAllDay ? undefined : dueTime || undefined,
+        isAllDay,
+        annoyingAlert,
         listId: listId || undefined,
         status,
         completed: status === 'done',
         tags: effectiveTags,
         notes: notes.trim() || undefined,
         recurrence,
+        repeatFrom: recurrence !== 'none' ? repeatFrom : undefined,
         expectedCost: typeof expectedCost === 'number' ? expectedCost : undefined,
         budgetCategory: budgetCategory || undefined,
         subtasks: subtasks.map((st) => ({ title: st, isCompleted: 0 }))
@@ -343,13 +372,14 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               <Flag className="w-3.5 h-3.5 text-violet-600" />
               <span>Priority Level</span>
             </label>
-            <div className="grid grid-cols-4 gap-2 p-1 bg-[#f5f5f7] rounded-2xl border border-black/[0.06]">
+            <div className="grid grid-cols-5 gap-1.5 p-1 bg-[#f5f5f7] rounded-2xl border border-black/[0.06]">
               {(
                 [
-                  { id: 'urgent', label: 'Urgent', color: 'text-red-600 bg-white shadow-sm border border-red-200' },
-                  { id: 'high', label: 'High', color: 'text-amber-600 bg-white shadow-sm border border-amber-200' },
+                  { id: 'none', label: 'None', color: 'text-gray-600 bg-white shadow-sm border border-gray-200' },
+                  { id: 'low', label: 'Low', color: 'text-blue-600 bg-white shadow-sm border border-blue-200' },
                   { id: 'medium', label: 'Medium', color: 'text-violet-600 bg-white shadow-sm border border-violet-200' },
-                  { id: 'low', label: 'Low', color: 'text-blue-600 bg-white shadow-sm border border-blue-200' }
+                  { id: 'high', label: 'High', color: 'text-amber-600 bg-white shadow-sm border border-amber-200' },
+                  { id: 'urgent', label: 'Urgent', color: 'text-red-600 bg-white shadow-sm border border-red-200' }
                 ] as const
               ).map((p) => {
                 const isSelected = priority === p.id;
@@ -370,7 +400,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                           ? 'bg-amber-500'
                           : p.id === 'medium'
                           ? 'bg-violet-500'
-                          : 'bg-blue-500'
+                          : p.id === 'low'
+                          ? 'bg-blue-500'
+                          : 'bg-gray-400'
                       }`}
                     />
                     <span>{p.label}</span>
@@ -380,12 +412,39 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </div>
           </div>
 
-          {/* ── Due Date & Time Presets ── */}
+          {/* ── Due Date, Time & TickTick Options ── */}
           <div className="space-y-2">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-[#6e6e73] flex items-center space-x-1.5">
-              <Calendar className="w-3.5 h-3.5 text-violet-600" />
-              <span>Scheduling &amp; Due Date</span>
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-[#6e6e73] flex items-center space-x-1.5">
+                <Calendar className="w-3.5 h-3.5 text-violet-600" />
+                <span>Scheduling &amp; Due Date</span>
+              </label>
+
+              {/* All-Day & Annoying Alert toggles */}
+              <div className="flex items-center space-x-3">
+                <label className="flex items-center space-x-1 text-xs text-[#6e6e73] cursor-pointer hover:text-[#1d1d1f]">
+                  <input
+                    type="checkbox"
+                    checked={isAllDay}
+                    onChange={(e) => setIsAllDay(e.target.checked)}
+                    className="rounded text-amber-500 focus:ring-amber-400"
+                  />
+                  <Sun className="w-3 h-3 text-amber-500" />
+                  <span>All-day</span>
+                </label>
+
+                <label className="flex items-center space-x-1 text-xs text-[#6e6e73] cursor-pointer hover:text-red-600">
+                  <input
+                    type="checkbox"
+                    checked={annoyingAlert}
+                    onChange={(e) => setAnnoyingAlert(e.target.checked)}
+                    className="rounded text-red-600 focus:ring-red-400"
+                  />
+                  <BellRing className="w-3 h-3 text-red-500" />
+                  <span>Annoying Alert</span>
+                </label>
+              </div>
+            </div>
 
             {/* Quick Date Presets */}
             <div className="flex flex-wrap items-center gap-1.5">
@@ -455,15 +514,54 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 />
               </div>
 
+              {!isAllDay ? (
+                <div className="relative">
+                  <input
+                    type="time"
+                    value={dueTime}
+                    onChange={(e) => setDueTime(e.target.value)}
+                    placeholder="Set time"
+                    className="w-full px-3 py-2 rounded-xl bg-[#f5f5f7] border border-black/[0.06] text-xs font-medium text-[#1d1d1f] focus:outline-none focus:border-violet-500 focus:bg-white transition-all cursor-pointer"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center px-3 py-2 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs text-amber-700">
+                  <Sun className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+                  <span>All-day task (no specific time)</span>
+                </div>
+              )}
+            </div>
+
+            {/* Recurrence & Repeat From */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div className="relative">
-                <input
-                  type="time"
-                  value={dueTime}
-                  onChange={(e) => setDueTime(e.target.value)}
-                  placeholder="Set time"
+                <select
+                  value={recurrence}
+                  onChange={(e) => setRecurrence(e.target.value as RecurrencePattern)}
                   className="w-full px-3 py-2 rounded-xl bg-[#f5f5f7] border border-black/[0.06] text-xs font-medium text-[#1d1d1f] focus:outline-none focus:border-violet-500 focus:bg-white transition-all cursor-pointer"
-                />
+                >
+                  <option value="none">No Repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekdays">Every Weekday (Mon-Fri)</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="biweekly">Bi-weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
               </div>
+
+              {recurrence !== 'none' && (
+                <div className="relative">
+                  <select
+                    value={repeatFrom}
+                    onChange={(e) => setRepeatFrom(e.target.value as 'due_date' | 'completion_date')}
+                    className="w-full px-3 py-2 rounded-xl bg-violet-50 border border-violet-200 text-xs font-medium text-violet-800 focus:outline-none focus:border-violet-500 transition-all cursor-pointer"
+                  >
+                    <option value="due_date">Repeat from: Due Date</option>
+                    <option value="completion_date">Repeat from: Completion Date</option>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 
@@ -651,7 +749,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               type="button"
               disabled={!title.trim() || createTaskMutation.isPending}
               onClick={handleSubmit}
-              className="px-5 py-2.5 rounded-full bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(124,58,237,0.35),inset_0_1px_1px_rgba(255,255,255,0.35)] active:scale-95 transition-all flex items-center space-x-1.5"
+              className="px-5 py-2.5 rounded-full bg-[#4772FA] hover:bg-blue-600 disabled:opacity-40 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(71,114,250,0.35)] active:scale-95 transition-all flex items-center space-x-1.5"
             >
               <span>{createTaskMutation.isPending ? 'Creating...' : 'Create Task'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

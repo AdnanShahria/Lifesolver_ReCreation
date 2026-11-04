@@ -15,7 +15,9 @@ import {
   ChevronLeft,
   X,
   Trash2,
-  FolderPlus
+  FolderPlus,
+  Ban,
+  CheckCircle2
 } from 'lucide-react';
 import type { SmartView, TaskList } from '../types';
 import {
@@ -185,7 +187,8 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
     view: SmartView,
     label: string,
     Icon: React.ElementType,
-    count?: number
+    count?: number,
+    iconColor?: string
   ) => {
     const isSelected = activeSmartView === view && !activeListId && !activeTag && !selectedDate;
     return (
@@ -203,7 +206,7 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
           isSelected
             ? isDark
               ? 'bg-white/[0.12] text-white shadow-xs border border-white/[0.14] font-semibold'
-              : 'bg-white/95 text-zinc-950 shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-white/90 font-semibold'
+              : 'bg-white text-zinc-950 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-gray-200/80 font-semibold'
             : isDark
             ? 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
             : 'text-zinc-600 hover:text-zinc-950 hover:bg-black/[0.04]'
@@ -212,9 +215,7 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
         <div className="flex items-center space-x-2.5 min-w-0">
           <Icon
             className={`w-4 h-4 shrink-0 transition-colors ${
-              isSelected
-                ? 'text-violet-600 dark:text-violet-400'
-                : 'text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white'
+              iconColor || (isSelected ? 'text-[#4772FA]' : 'text-zinc-400')
             }`}
           />
           <span className="truncate">{label}</span>
@@ -223,7 +224,7 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
           <span
             className={`px-2 py-0.5 text-[10px] font-mono rounded-full font-medium ${
               isSelected
-                ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300'
+                ? 'bg-blue-100 text-[#4772FA] dark:bg-blue-950 dark:text-blue-300'
                 : isDark
                 ? 'bg-zinc-800 text-zinc-400'
                 : 'bg-black/[0.06] text-zinc-600 group-hover:text-zinc-950'
@@ -417,12 +418,14 @@ export const PlannerSidebar: React.FC<PlannerSidebarProps> = ({
             <div className="px-3 pb-1 text-[10px] font-semibold text-[#8d8d93] tracking-widest uppercase">
               Smart Views
             </div>
-            {renderSmartNavItem('inbox', 'Inbox', Inbox, stats?.inboxCount)}
-            {renderSmartNavItem('today', 'Today', CalendarDays, stats?.todayCount)}
-            {renderSmartNavItem('tomorrow', 'Tomorrow', Calendar, stats?.tomorrowCount)}
-            {renderSmartNavItem('7days', 'Next 7 Days', CalendarRange, stats?.next7DaysCount)}
-            {renderSmartNavItem('matrix', 'Eisenhower Matrix', Grid2X2)}
-            {renderSmartNavItem('all', 'All Tasks', ListCheck, stats?.allCount)}
+            {renderSmartNavItem('inbox', 'Inbox', Inbox, stats?.inboxCount, 'text-[#4772FA]')}
+            {renderSmartNavItem('today', 'Today', CalendarDays, stats?.todayCount, 'text-[#4772FA]')}
+            {renderSmartNavItem('tomorrow', 'Tomorrow', Calendar, stats?.tomorrowCount, 'text-[#FFB000]')}
+            {renderSmartNavItem('7days', 'Next 7 Days', CalendarRange, stats?.next7DaysCount, 'text-[#8B5CF6]')}
+            {renderSmartNavItem('matrix', 'Eisenhower Matrix', Grid2X2, undefined, 'text-[#10B981]')}
+            {renderSmartNavItem('all', 'All Tasks', ListCheck, stats?.allCount, 'text-[#06B6D4]')}
+            {renderSmartNavItem('wont_do', "Won't Do", Ban, stats?.wontDoCount, 'text-[#64748B]')}
+            {renderSmartNavItem('completed', 'Completed', CheckCircle2, stats?.completedCount, 'text-[#10B981]')}
           </div>
 
           {/* ── Project Folders & Lists ── */}

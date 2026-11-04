@@ -144,7 +144,7 @@ listsRoute.get('/', async (c) => {
     const taskCounts = await db
       .select({
         listId: tasksTable.listId,
-        activeCount: sql<number>`SUM(CASE WHEN ${tasksTable.status} != 'done' THEN 1 ELSE 0 END)`,
+        activeCount: sql<number>`SUM(CASE WHEN ${tasksTable.status} NOT IN ('done', 'wont_do', 'archived') THEN 1 ELSE 0 END)`,
         totalCount: sql<number>`count(*)`
       })
       .from(tasksTable)
@@ -176,55 +176,71 @@ listsRoute.get('/', async (c) => {
     const tomorrowStr = getTomorrowIso();
     const next7DaysStr = getNext7DaysIso();
 
-    const [todayCountRow, tomorrowCountRow, next7DaysCountRow, allActiveCountRow, completedCountRow] =
-      await Promise.all([
-        db
-          .select({ count: sql<number>`count(*)` })
-          .from(tasksTable)
-          .where(
-            and(
-              eq(tasksTable.userId, userId),
-              sql`${tasksTable.dueDate} IS NOT NULL`,
-              sql`substr(${tasksTable.dueDate}, 1, 10) <= ${todayStr}`,
-              ne(tasksTable.status, 'done')
-            )
+    const [
+      todayCountRow,
+      tomorrowCountRow,
+      next7DaysCountRow,
+      allActiveCountRow,
+      completedCountRow,
+      wontDoCountRow
+    ] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(tasksTable)
+        .where(
+          and(
+            eq(tasksTable.userId, userId),
+            sql`${tasksTable.dueDate} IS NOT NULL`,
+            sql`substr(${tasksTable.dueDate}, 1, 10) <= ${todayStr}`,
+            sql`${tasksTable.status} NOT IN ('done', 'wont_do', 'archived')`
           )
-          .get(),
-        db
-          .select({ count: sql<number>`count(*)` })
-          .from(tasksTable)
-          .where(
-            and(
-              eq(tasksTable.userId, userId),
-              sql`substr(${tasksTable.dueDate}, 1, 10) = ${tomorrowStr}`,
-              ne(tasksTable.status, 'done')
-            )
+        )
+        .get(),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(tasksTable)
+        .where(
+          and(
+            eq(tasksTable.userId, userId),
+            sql`substr(${tasksTable.dueDate}, 1, 10) = ${tomorrowStr}`,
+            sql`${tasksTable.status} NOT IN ('done', 'wont_do', 'archived')`
           )
-          .get(),
-        db
-          .select({ count: sql<number>`count(*)` })
-          .from(tasksTable)
-          .where(
-            and(
-              eq(tasksTable.userId, userId),
-              sql`${tasksTable.dueDate} IS NOT NULL`,
-              sql`substr(${tasksTable.dueDate}, 1, 10) >= ${todayStr}`,
-              sql`substr(${tasksTable.dueDate}, 1, 10) <= ${next7DaysStr}`,
-              ne(tasksTable.status, 'done')
-            )
+        )
+        .get(),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(tasksTable)
+        .where(
+          and(
+            eq(tasksTable.userId, userId),
+            sql`${tasksTable.dueDate} IS NOT NULL`,
+            sql`substr(${tasksTable.dueDate}, 1, 10) >= ${todayStr}`,
+            sql`substr(${tasksTable.dueDate}, 1, 10) <= ${next7DaysStr}`,
+            sql`${tasksTable.status} NOT IN ('done', 'wont_do', 'archived')`
           )
-          .get(),
-        db
-          .select({ count: sql<number>`count(*)` })
-          .from(tasksTable)
-          .where(and(eq(tasksTable.userId, userId), ne(tasksTable.status, 'done')))
-          .get(),
-        db
-          .select({ count: sql<number>`count(*)` })
-          .from(tasksTable)
-          .where(and(eq(tasksTable.userId, userId), eq(tasksTable.status, 'done')))
-          .get()
-      ]);
+        )
+        .get(),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(tasksTable)
+        .where(
+          and(
+            eq(tasksTable.userId, userId),
+            sql`${tasksTable.status} NOT IN ('done', 'wont_do', 'archived')`
+          )
+        )
+        .get(),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(tasksTable)
+        .where(and(eq(tasksTable.userId, userId), eq(tasksTable.status, 'done')))
+        .get(),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(tasksTable)
+        .where(and(eq(tasksTable.userId, userId), eq(tasksTable.status, 'wont_do')))
+        .get()
+    ]);
 
     const smartCounts = {
       today: Number(todayCountRow?.count || 0),
@@ -232,7 +248,8 @@ listsRoute.get('/', async (c) => {
       next7Days: Number(next7DaysCountRow?.count || 0),
       all: Number(allActiveCountRow?.count || 0),
       inbox: inboxList ? (countsMap.get(inboxList.id)?.activeCount || 0) : 0,
-      completed: Number(completedCountRow?.count || 0)
+      completed: Number(completedCountRow?.count || 0),
+      wontDo: Number(wontDoCountRow?.count || 0)
     };
 
     return jsonOk(c, {

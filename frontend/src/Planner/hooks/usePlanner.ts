@@ -82,10 +82,14 @@ export function normalizeTask(t: any): Task {
     title: st.title || '',
     completed: st.completed !== undefined ? Boolean(st.completed) : st.isCompleted === 1,
     dueDate: st.dueDate || undefined,
+    reminderTime: st.reminderTime || undefined,
+    snoozeReminderTime: st.snoozeReminderTime || undefined,
+    timeZone: st.timeZone || undefined,
     createdAt: st.createdAt || new Date().toISOString()
   }));
 
   const isCompleted = t.completed !== undefined ? Boolean(t.completed) : t.status === 'done';
+  const isWontDo = t.status === 'wont_do' || Boolean(t.wontDo);
 
   return {
     id: t.id,
@@ -93,16 +97,25 @@ export function normalizeTask(t: any): Task {
     description: t.description || t.notes || '',
     notes: t.notes || t.description || '',
     completed: isCompleted,
-    status: t.status || (isCompleted ? 'done' : 'todo'),
+    wontDo: isWontDo,
+    status: t.status || (isCompleted ? 'done' : isWontDo ? 'wont_do' : 'todo'),
     priority: t.priority || 'medium',
+    kind: t.kind || 'TEXT',
     dueDate: t.dueDate ? String(t.dueDate).slice(0, 10) : undefined,
     dueTime: t.dueTime || t.startTime || undefined,
+    isAllDay: Boolean(t.isAllDay),
+    timeZone: t.timeZone || '',
+    annoyingAlert: Boolean(t.annoyingAlert),
     listId: t.listId || undefined,
     columnId: t.columnId || undefined,
+    parentTaskId: t.parentTaskId || undefined,
     tags: parsedTags,
     isPinned: Boolean(t.isPinned),
     subtasks: normalizedSubtasks,
     recurrence: t.recurrence || t.recurrenceRule || 'none',
+    recurrenceRule: t.recurrenceRule || undefined,
+    repeatFrom: t.repeatFrom || 'due_date',
+    reminderTime: t.reminderTime || undefined,
     expectedCost: typeof t.expectedCost === 'number' ? t.expectedCost : 0,
     budgetCategory: t.budgetCategory || t.financeType || undefined,
     createdAt: t.createdAt || new Date().toISOString(),
@@ -122,9 +135,15 @@ export function calculatePlannerStats(tasks: Task[]): PlannerStats {
   let next7DaysCount = 0;
   let overdueCount = 0;
   let completedCount = 0;
+  let wontDoCount = 0;
 
   for (const t of tasks) {
-    if (t.completed) {
+    if (t.wontDo || t.status === 'wont_do') {
+      wontDoCount++;
+      continue;
+    }
+
+    if (t.completed || t.status === 'done') {
       completedCount++;
       continue;
     }
@@ -153,9 +172,10 @@ export function calculatePlannerStats(tasks: Task[]): PlannerStats {
     todayCount,
     tomorrowCount,
     next7DaysCount,
-    allCount: tasks.filter((t) => !t.completed).length,
+    allCount: tasks.filter((t) => !t.completed && !t.wontDo && t.status !== 'wont_do').length,
     overdueCount,
-    completedCount
+    completedCount,
+    wontDoCount
   };
 }
 
@@ -194,6 +214,12 @@ export function useTasks(filter?: {
             break;
           case '7days':
             params.set('dueDate', '7days');
+            break;
+          case 'wont_do':
+            params.set('status', 'wont_do');
+            break;
+          case 'completed':
+            params.set('status', 'done');
             break;
           case 'all':
           case 'matrix':
@@ -289,6 +315,7 @@ export function usePlannerStats() {
           all?: number;
           inbox?: number;
           completed?: number;
+          wontDo?: number;
         };
       }>('/api/planner/lists');
 
@@ -301,7 +328,8 @@ export function usePlannerStats() {
           next7DaysCount: Number(sc.next7Days || 0),
           allCount: Number(sc.all || 0),
           overdueCount: 0,
-          completedCount: Number(sc.completed || 0)
+          completedCount: Number(sc.completed || 0),
+          wontDoCount: Number(sc.wontDo || 0)
         };
       }
 
@@ -312,7 +340,8 @@ export function usePlannerStats() {
         next7DaysCount: 0,
         allCount: 0,
         overdueCount: 0,
-        completedCount: 0
+        completedCount: 0,
+        wontDoCount: 0
       };
     },
     staleTime: 1000 * 5
@@ -329,19 +358,45 @@ export function useCreateTask() {
       const payload: any = {
         title: input.title,
         priority: input.priority || 'medium',
+        kind: input.kind || 'TEXT',
         dueDate: input.dueDate || null,
         dueTime: input.dueTime || null,
+        isAllDay: input.isAllDay ? 1 : 0,
+        timeZone: input.timeZone || null,
+        annoyingAlert: input.annoyingAlert ? 1 : 0,
         listId: input.listId || null,
+        columnId: input.columnId || null,
+        parentTaskId: input.parentTaskId || null,
         tags: input.tags || [],
         notes: input.notes || '',
         status: input.status || (input.completed ? 'done' : 'todo'),
         recurrence: input.recurrence || 'none',
+        recurrenceRule: input.recurrenceRule || null,
+        repeatFrom: input.repeatFrom || 'due_date',
+        reminderTime: input.reminderTime || null,
+        isPinned: input.isPinned ? 1 : 0,
         expectedCost: input.expectedCost || 0,
         budgetCategory: input.budgetCategory || null,
         subtasks: input.subtasks || []
       };
 
       const res = await api.post<{ task: any }>('/api/planner/tasks', payload);
+      return normalizeTask(res.task);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['planner'] });
+    }
+  });
+}
+
+export function useSetTaskWontDo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ taskId, wontDo }: { taskId: string; wontDo: boolean }): Promise<Task> => {
+      const res = await api.patch<{ task: any }>(`/api/planner/tasks/${taskId}/status`, {
+        status: wontDo ? 'wont_do' : 'todo'
+      });
       return normalizeTask(res.task);
     },
     onSuccess: () => {

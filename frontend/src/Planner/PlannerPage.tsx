@@ -18,7 +18,9 @@ import {
   Filter,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Ban,
+  CheckCircle2
 } from 'lucide-react';
 import { Sidebar } from '../_core/Sidebar';
 import { PlannerSidebar } from './components/PlannerSidebar';
@@ -160,6 +162,10 @@ export const PlannerPage: React.FC = () => {
         return { title: 'Eisenhower Matrix', icon: Grid2X2, badge: 'Priority Matrix' };
       case 'all':
         return { title: 'All Tasks', icon: ListCheck, badge: 'Master View' };
+      case 'wont_do':
+        return { title: "Won't Do", icon: Ban, badge: 'TickTick Abandon' };
+      case 'completed':
+        return { title: 'Completed', icon: CheckCircle2, badge: 'Archived Tasks' };
       case 'today':
       default:
         return { title: 'Today', icon: CalendarDays, badge: 'Smart View' };
@@ -241,7 +247,7 @@ export const PlannerPage: React.FC = () => {
             </button>
 
             <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-9 h-9 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-600 dark:text-violet-400 shrink-0 shadow-xs">
+              <div className="w-9 h-9 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-900/40 flex items-center justify-center text-[#4772FA] shrink-0 shadow-2xs">
                 <HeaderIcon className="w-4 h-4" />
               </div>
 
@@ -336,14 +342,14 @@ export const PlannerPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Prominent "+ New Task" Button (Apple Capsule CTA) */}
+            {/* Prominent "+ New Task" Button (TickTick Primary Blue CTA) */}
             <button
               type="button"
               onClick={() => {
                 setCreateModalDefaultPriority('medium');
                 setIsCreateModalOpen(true);
               }}
-              className="px-4 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(124,58,237,0.35),inset_0_1px_1px_rgba(255,255,255,0.35)] active:scale-95 flex items-center space-x-1.5 transition-all"
+              className="px-4 py-1.5 rounded-full bg-[#4772FA] hover:bg-blue-600 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(71,114,250,0.35)] active:scale-95 flex items-center space-x-1.5 transition-all"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span className="hidden sm:inline">New Task</span>

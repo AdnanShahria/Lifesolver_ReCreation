@@ -76,14 +76,15 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
     let listId: string | undefined;
     const tags: string[] = [];
 
-    // Match priority: !urgent, !high, !med, !medium, !low
-    const priorityMatch = text.match(/!(urgent|high|med(?:ium)?|low)\b/i);
+    // Match priority: !urgent, !high, !med, !medium, !low, !none
+    const priorityMatch = text.match(/!(urgent|high|med(?:ium)?|low|none)\b/i);
     if (priorityMatch) {
       const p = priorityMatch[1].toLowerCase();
       if (p === 'urgent') priority = 'urgent';
       else if (p === 'high') priority = 'high';
       else if (p === 'med' || p === 'medium') priority = 'medium';
       else if (p === 'low') priority = 'low';
+      else if (p === 'none') priority = 'none';
     }
 
     // Match tags: #tag
@@ -155,7 +156,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
   // Clean title for submission
   const getCleanTitle = () => {
     let t = rawText;
-    t = t.replace(/!(urgent|high|med(?:ium)?|low)\b/gi, '');
+    t = t.replace(/!(urgent|high|med(?:ium)?|low|none)\b/gi, '');
     t = t.replace(/#([a-zA-Z0-9_-]+)/g, '');
     t = t.replace(/\^([a-zA-Z0-9_-]+)/gi, '');
     t = t.replace(/(?:^|\s)(?:@today\b|today\b)/gi, '');
@@ -195,25 +196,26 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
   };
 
   const priorityColor = {
-    urgent: 'text-red-700 bg-red-50 border-red-200',
-    high: 'text-amber-700 bg-amber-50 border-amber-200',
-    medium: 'text-violet-700 bg-violet-50 border-violet-200',
-    low: 'text-blue-700 bg-blue-50 border-blue-200'
+    urgent: 'text-[#E03131] bg-red-50 border-red-200 dark:bg-red-950/40 dark:border-red-900/50',
+    high: 'text-[#E03131] bg-red-50 border-red-200 dark:bg-red-950/40 dark:border-red-900/50',
+    medium: 'text-[#D97706] bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:border-amber-900/50',
+    low: 'text-[#4772FA] bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-900/50',
+    none: 'text-gray-500 bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:border-zinc-700'
   }[effectivePriority];
 
   return (
     <div
       ref={containerRef}
-      className={`relative w-full rounded-2xl transition-all duration-200 font-sans apple-card-glass ${
+      className={`relative w-full rounded-2xl transition-all duration-200 font-sans bg-white dark:bg-[#1f2024] border border-gray-200/80 dark:border-zinc-800 shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${
         isFocused
-          ? 'ring-2 ring-violet-500/30 border-violet-500/40 shadow-[0_12px_36px_rgba(139,92,246,0.12)]'
-          : 'hover:border-black/[0.12] dark:hover:border-white/[0.18]'
+          ? 'ring-2 ring-[#4772FA]/30 border-[#4772FA] shadow-[0_8px_32px_rgba(71,114,250,0.12)]'
+          : 'hover:border-gray-300 dark:hover:border-zinc-700'
       }`}
     >
       <form onSubmit={handleFormSubmit} className="p-3 sm:p-3.5">
         {/* Input Row */}
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 text-violet-600">
+          <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center shrink-0 text-[#4772FA]">
             <Plus className="w-4 h-4 stroke-[2.5]" />
           </div>
 
@@ -225,7 +227,7 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
-            className="flex-1 bg-transparent text-sm text-[#1d1d1f] dark:text-zinc-100 placeholder:text-[#8d8d93] focus:outline-none font-medium"
+            className="flex-1 bg-transparent text-[14px] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none font-medium"
           />
 
           {onOpenFullModal && (
@@ -233,19 +235,20 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
               type="button"
               title="Open full task creator sheet"
               onClick={onOpenFullModal}
-              className="p-1.5 rounded-xl text-[#8d8d93] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
             >
               <SlidersHorizontal className="w-4 h-4" />
             </button>
           )}
 
+          {/* TickTick Signature Save Button */}
           <button
             type="submit"
             disabled={!rawText.trim() || createTaskMutation.isPending}
-            className="px-4 py-1.5 rounded-full bg-violet-600 hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold text-white shadow-[0_2px_8px_rgba(124,58,237,0.3),inset_0_1px_0.5px_rgba(255,255,255,0.35)] flex items-center space-x-1.5 transition-all active:scale-95"
+            className="w-8 h-8 rounded-full bg-[#4772FA] hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white shadow-sm transition-transform active:scale-90"
+            title="Add Task (Enter)"
           >
-            <span>Add</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
 
@@ -266,8 +269,8 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
 
               {/* Priority Dropdown */}
               {openPicker === 'priority' && (
-                <div className="absolute top-full mt-2 left-0 z-50 w-36 p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-black/[0.08] dark:border-white/[0.12] shadow-[0_12px_36px_rgba(0,0,0,0.15)] space-y-0.5 animate-in fade-in">
-                  {(['urgent', 'high', 'medium', 'low'] as PriorityLevel[]).map((p) => (
+                <div className="absolute top-full mt-2 left-0 z-50 w-36 p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 shadow-xl space-y-0.5 animate-in fade-in">
+                  {(['urgent', 'high', 'medium', 'low', 'none'] as PriorityLevel[]).map((p) => (
                     <button
                       key={p}
                       type="button"
@@ -275,17 +278,17 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
                         setManualPriority(p);
                         setOpenPicker(null);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#1d1d1f] dark:text-zinc-100 hover:bg-[#f5f5f7] dark:hover:bg-white/[0.06] flex items-center space-x-2 capitalize transition-colors"
+                      className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-800 flex items-center space-x-2 capitalize transition-colors"
                     >
                       <Flag
                         className={`w-3.5 h-3.5 ${
-                          p === 'urgent'
-                            ? 'text-red-500'
-                            : p === 'high'
-                            ? 'text-amber-500'
+                          p === 'urgent' || p === 'high'
+                            ? 'text-[#E03131]'
                             : p === 'medium'
-                            ? 'text-violet-500'
-                            : 'text-blue-500'
+                            ? 'text-[#FFB000]'
+                            : p === 'low'
+                            ? 'text-[#4772FA]'
+                            : 'text-gray-400'
                         }`}
                       />
                       <span>{p}</span>
@@ -302,11 +305,11 @@ export const QuickAddTaskInput: React.FC<QuickAddTaskInputProps> = ({
                 onClick={() => setOpenPicker(openPicker === 'date' ? null : 'date')}
                 className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
                   effectiveDueDate
-                    ? 'bg-violet-50 text-violet-700 border-violet-200 font-semibold shadow-sm'
-                    : 'bg-[#f5f5f7] text-[#6e6e73] border-black/[0.04] hover:text-[#1d1d1f]'
+                    ? 'bg-blue-50 text-[#4772FA] border-blue-200 dark:bg-blue-950/40 dark:border-blue-900/50 font-semibold shadow-2xs'
+                    : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-900'
                 }`}
               >
-                <Calendar className="w-3 h-3 text-violet-600" />
+                <Calendar className="w-3 h-3 text-[#4772FA]" />
                 <span>
                   {effectiveDueDate === getIsoDate(0)
                     ? 'Today'

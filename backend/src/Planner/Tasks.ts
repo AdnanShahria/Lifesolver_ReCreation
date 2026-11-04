@@ -26,13 +26,17 @@ const createTaskSchema = z.object({
   listId: z.string().optional().nullable(),
   columnId: z.string().optional().nullable(),
   parentTaskId: z.string().optional().nullable(),
-  status: z.enum(['todo', 'in_progress', 'done']).default('todo'),
+  status: z.enum(['todo', 'in_progress', 'done', 'wont_do', 'archived']).default('todo'),
   completed: z.boolean().optional(), // Alias for status
-  priority: z.enum(['urgent', 'high', 'medium', 'low']).default('medium'),
+  priority: z.enum(['urgent', 'high', 'medium', 'low', 'none']).default('medium'),
+  kind: z.enum(['TEXT', 'CHECKLIST', 'NOTE']).default('TEXT'),
   dueDate: z.string().optional().nullable(),
   startTime: z.string().optional().nullable(),
   dueTime: z.string().optional().nullable(), // Alias for startTime
   endTime: z.string().optional().nullable(),
+  isAllDay: z.union([z.number().int().min(0).max(1), z.boolean()]).default(0),
+  timeZone: z.string().optional().nullable(),
+  annoyingAlert: z.union([z.number().int().min(0).max(1), z.boolean()]).default(0),
   estimatedDuration: z.number().int().min(0).optional().nullable(),
   actualDuration: z.number().int().min(0).optional().nullable(),
   recurrenceRule: z.string().optional().nullable(),
@@ -54,7 +58,10 @@ const createTaskSchema = z.object({
     z.object({
       title: z.string().trim().min(1),
       isCompleted: z.union([z.boolean(), z.number()]).optional(),
-      dueDate: z.string().optional().nullable()
+      dueDate: z.string().optional().nullable(),
+      reminderTime: z.string().optional().nullable(),
+      snoozeReminderTime: z.string().optional().nullable(),
+      timeZone: z.string().optional().nullable()
     })
   ])).optional().nullable()
 });
@@ -68,7 +75,7 @@ const reorderTaskSchema = z.object({
 });
 
 const statusUpdateSchema = z.object({
-  status: z.enum(['todo', 'in_progress', 'done']).optional(),
+  status: z.enum(['todo', 'in_progress', 'done', 'wont_do', 'archived']).optional(),
   completed: z.boolean().optional()
 });
 
@@ -109,6 +116,11 @@ function formatTaskResponse(task: Task, subtasks: TaskSubtask[] = []) {
   return {
     ...task,
     completed: task.status === 'done',
+    wontDo: task.status === 'wont_do',
+    isAllDay: task.isAllDay === 1,
+    annoyingAlert: task.annoyingAlert === 1,
+    timeZone: task.timeZone || '',
+    kind: task.kind || 'TEXT',
     notes: task.description || '',
     dueTime: task.startTime || '',
     tags: parsedTags,
@@ -183,7 +195,8 @@ tasksRoute.get('/', async (c) => {
           and(
             sql`${tasksTable.dueDate} IS NOT NULL`,
             sql`substr(${tasksTable.dueDate}, 1, 10) <= ${todayStr}`,
-            ne(tasksTable.status, 'done')
+            ne(tasksTable.status, 'done'),
+            ne(tasksTable.status, 'wont_do')
           )!
         );
       } else if (dueDateParam === 'tomorrow') {
@@ -196,7 +209,8 @@ tasksRoute.get('/', async (c) => {
             sql`${tasksTable.dueDate} IS NOT NULL`,
             sql`substr(${tasksTable.dueDate}, 1, 10) >= ${todayStr}`,
             sql`substr(${tasksTable.dueDate}, 1, 10) <= ${next7DaysStr}`,
-            ne(tasksTable.status, 'done')
+            ne(tasksTable.status, 'done'),
+            ne(tasksTable.status, 'wont_do')
           )!
         );
       } else if (dueDateParam === 'overdue') {
@@ -204,7 +218,8 @@ tasksRoute.get('/', async (c) => {
           and(
             sql`${tasksTable.dueDate} IS NOT NULL`,
             sql`substr(${tasksTable.dueDate}, 1, 10) < ${todayStr}`,
-            ne(tasksTable.status, 'done')
+            ne(tasksTable.status, 'done'),
+            ne(tasksTable.status, 'wont_do')
           )!
         );
       } else {
@@ -386,6 +401,14 @@ tasksRoute.post('/', async (c) => {
       ? (parsed.data.isFloating ? 1 : 0)
       : (parsed.data.isFloating ?? 0);
 
+    const isAllDayVal = typeof parsed.data.isAllDay === 'boolean'
+      ? (parsed.data.isAllDay ? 1 : 0)
+      : (parsed.data.isAllDay ?? 0);
+
+    const annoyingAlertVal = typeof parsed.data.annoyingAlert === 'boolean'
+      ? (parsed.data.annoyingAlert ? 1 : 0)
+      : (parsed.data.annoyingAlert ?? 0);
+
     const taskId = crypto.randomUUID();
     const isDone = initialStatus === 'done';
     const nowIso = new Date().toISOString();
@@ -400,9 +423,13 @@ tasksRoute.post('/', async (c) => {
       description,
       status: initialStatus,
       priority: parsed.data.priority,
+      kind: parsed.data.kind || 'TEXT',
       dueDate: parsed.data.dueDate || null,
       startTime,
       endTime: parsed.data.endTime || null,
+      isAllDay: isAllDayVal,
+      timeZone: parsed.data.timeZone || null,
+      annoyingAlert: annoyingAlertVal,
       estimatedDuration: parsed.data.estimatedDuration ?? null,
       actualDuration: parsed.data.actualDuration ?? null,
       recurrenceRule,
@@ -432,13 +459,19 @@ tasksRoute.post('/', async (c) => {
         const subtaskId = crypto.randomUUID();
         const isComp = typeof item === 'object' && (item.isCompleted === true || item.isCompleted === 1) ? 1 : 0;
         const subDueDate = typeof item === 'object' ? item.dueDate || null : null;
+        const subReminderTime = typeof item === 'object' ? item.reminderTime || null : null;
+        const subSnoozeReminderTime = typeof item === 'object' ? item.snoozeReminderTime || null : null;
+        const subTimeZone = typeof item === 'object' ? item.timeZone || null : null;
         const stRecord = {
           id: subtaskId,
           taskId,
           title: subtaskTitle,
           isCompleted: isComp,
           orderIndex: i,
-          dueDate: subDueDate
+          dueDate: subDueDate,
+          reminderTime: subReminderTime,
+          snoozeReminderTime: subSnoozeReminderTime,
+          timeZone: subTimeZone
         };
         await db.insert(taskSubtasksTable).values(stRecord);
         createdSubtasks.push(stRecord as any);
@@ -570,6 +603,18 @@ tasksRoute.put('/:id', async (c) => {
     }
     if (parsed.data.repeatFrom !== undefined) updates.repeatFrom = parsed.data.repeatFrom;
     if (parsed.data.reminderTime !== undefined) updates.reminderTime = parsed.data.reminderTime;
+    if (parsed.data.kind !== undefined) updates.kind = parsed.data.kind;
+    if (parsed.data.timeZone !== undefined) updates.timeZone = parsed.data.timeZone;
+    if (parsed.data.isAllDay !== undefined) {
+      updates.isAllDay = typeof parsed.data.isAllDay === 'boolean'
+        ? (parsed.data.isAllDay ? 1 : 0)
+        : parsed.data.isAllDay;
+    }
+    if (parsed.data.annoyingAlert !== undefined) {
+      updates.annoyingAlert = typeof parsed.data.annoyingAlert === 'boolean'
+        ? (parsed.data.annoyingAlert ? 1 : 0)
+        : parsed.data.annoyingAlert;
+    }
     if (parsed.data.isPinned !== undefined) {
       updates.isPinned = typeof parsed.data.isPinned === 'boolean'
         ? (parsed.data.isPinned ? 1 : 0)
@@ -686,7 +731,7 @@ tasksRoute.patch('/:id/status', async (c) => {
       return jsonError(c, 'Task not found', 'NOT_FOUND', 404);
     }
 
-    let nextStatus: 'todo' | 'in_progress' | 'done';
+    let nextStatus: 'todo' | 'in_progress' | 'done' | 'wont_do' | 'archived';
 
     // Check if body provides status or completed
     let body: any = null;
@@ -706,20 +751,21 @@ tasksRoute.patch('/:id/status', async (c) => {
       } else if (parsed.data.completed !== undefined) {
         nextStatus = parsed.data.completed ? 'done' : 'todo';
       } else {
-        nextStatus = existing.status === 'done' ? 'todo' : 'done';
+        nextStatus = (existing.status === 'done' || existing.status === 'wont_do') ? 'todo' : 'done';
       }
     } else {
-      // Toggle logic: done -> todo, otherwise -> done
-      nextStatus = existing.status === 'done' ? 'todo' : 'done';
+      // Toggle logic: done or wont_do -> todo, otherwise -> done
+      nextStatus = (existing.status === 'done' || existing.status === 'wont_do') ? 'todo' : 'done';
     }
 
     const isDone = nextStatus === 'done';
+    const isWontDo = nextStatus === 'wont_do';
     const nowIso = new Date().toISOString();
 
     const updates: Partial<typeof tasksTable.$inferInsert> = {
       status: nextStatus,
       completedAt: isDone ? nowIso : null,
-      progress: isDone ? 100 : (existing.progress === 100 ? 0 : existing.progress)
+      progress: isDone ? 100 : (isWontDo ? existing.progress : (existing.progress === 100 ? 0 : existing.progress))
     };
 
     await db.update(tasksTable).set(updates).where(eq(tasksTable.id, id));
